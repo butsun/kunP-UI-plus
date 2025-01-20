@@ -42,6 +42,9 @@ VXETable.config({
 import { ElDialog } from 'element-plus';
 ElDialog.props.closeOnClickModal.default = false;
 
+import ElementPlus from 'element-plus';
+import RegionSelect from '@/components/RegionSelect';
+
 const app = createApp(App);
 
 app.use(HighLight);
@@ -51,6 +54,8 @@ app.use(store);
 app.use(i18n);
 app.use(VXETable);
 app.use(plugins);
+app.use(ElementPlus);
+app.use(RegionSelect);
 // 自定义指令
 directive(app);
 

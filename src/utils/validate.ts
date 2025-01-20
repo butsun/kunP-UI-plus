@@ -90,3 +90,22 @@ export const isArray = (arg: string | string[]) => {
   }
   return Array.isArray(arg);
 };
+
+/**
+ * 校验电话号码（座机和手机）
+ * @param {string} phone - 电话号码
+ * @returns {Boolean} - 返回true表示验证通过
+ * @description
+ * 支持的格式：
+ * 1. 手机号码：13x xxxx xxxx, 14x xxxx xxxx, 15x xxxx xxxx, 16x xxxx xxxx, 17x xxxx xxxx, 18x xxxx xxxx, 19x xxxx xxxx
+ * 2. 座机号码：xxx-xxxxxxxx, xxxx-xxxxxxx, xxxx-xxxxxxxx
+ * 3. 不支持分机号
+ */
+export const validPhone = (phone: string): boolean => {
+  // 手机号码正则
+  const mobileReg = /^1[3-9]\d{9}$/;
+  // 座机号码正则（不包含分机号）
+  const telReg = /^0\d{2,3}-\d{7,8}$/;
+  
+  return mobileReg.test(phone) || telReg.test(phone);
+};
