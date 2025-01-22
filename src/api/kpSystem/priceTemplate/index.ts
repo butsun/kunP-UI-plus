@@ -1,6 +1,6 @@
 import request from '@/utils/request';
 import { AxiosPromise } from 'axios';
-import { PriceTemplateVO, PriceTemplateForm, PriceTemplateQuery } from '@/api/kpSystem/priceTemplate/types';
+import { PriceTemplateVO, PriceTemplateForm, PriceTemplateQuery, PriceTemplateResponse, PriceTemplateDetailVO } from '@/api/kpSystem/priceTemplate/types';
 
 /**
  * 查询站点价格模版列表
@@ -8,7 +8,7 @@ import { PriceTemplateVO, PriceTemplateForm, PriceTemplateQuery } from '@/api/kp
  * @returns {*}
  */
 
-export const listPriceTemplate = (query?: PriceTemplateQuery): AxiosPromise<PriceTemplateVO[]> => {
+export const listPriceTemplate = (query?: PriceTemplateQuery): AxiosPromise<PriceTemplateResponse> => {
   return request({
     url: '/kpSystem/priceTemplate/list',
     method: 'get',
@@ -28,10 +28,21 @@ export const getPriceTemplate = (id: string | number): AxiosPromise<PriceTemplat
 };
 
 /**
+ * 获取价格模板详情
+ * @param priceCode 价格模板编码
+ */
+export const getPriceTemplateDetail = (priceCode: string | number): AxiosPromise<PriceTemplateDetailVO> => {
+  return request({
+    url: `/kpSystem/priceTemplate/${priceCode}`,
+    method: 'get'
+  });
+};
+
+/**
  * 新增站点价格模版
  * @param data
  */
-export const addPriceTemplate = (data: PriceTemplateForm) => {
+export const addPriceTemplate = (data: PriceTemplateForm): AxiosPromise<PriceTemplateVO> => {
   return request({
     url: '/kpSystem/priceTemplate',
     method: 'post',
@@ -43,7 +54,7 @@ export const addPriceTemplate = (data: PriceTemplateForm) => {
  * 修改站点价格模版
  * @param data
  */
-export const updatePriceTemplate = (data: PriceTemplateForm) => {
+export const updatePriceTemplate = (data: PriceTemplateForm): AxiosPromise<PriceTemplateVO> => {
   return request({
     url: '/kpSystem/priceTemplate',
     method: 'put',

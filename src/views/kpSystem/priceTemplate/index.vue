@@ -4,25 +4,11 @@
       <div v-show="showSearch" class="mb-[10px]">
         <el-card shadow="hover">
           <el-form ref="queryFormRef" :model="queryParams" :inline="true">
-            <el-form-item label="充电站ID" prop="stationId">
-              <el-input v-model="queryParams.stationId" placeholder="请输入充电站ID" clearable @keyup.enter="handleQuery" />
+            <el-form-item label="计费编号" prop="priceCode">
+              <el-input v-model="queryParams.priceCode" placeholder="请输入计费编号" clearable @keyup.enter="handleQuery" />
             </el-form-item>
-            <el-form-item label="价格模版编号" prop="priceCode">
-              <el-input v-model="queryParams.priceCode" placeholder="请输入价格模版编号" clearable @keyup.enter="handleQuery" />
-            </el-form-item>
-            <el-form-item label="时段起始时间点 6位 HHmmss" prop="startTime">
-              <el-date-picker clearable
-                v-model="queryParams.startTime"
-                type="date"
-                value-format="YYYY-MM-DD"
-                placeholder="请选择时段起始时间点 6位 HHmmss"
-              />
-            </el-form-item>
-            <el-form-item label="电价:XXXX.XXXX" prop="elecPrice">
-              <el-input v-model="queryParams.elecPrice" placeholder="请输入电价:XXXX.XXXX" clearable @keyup.enter="handleQuery" />
-            </el-form-item>
-            <el-form-item label="服务费单价:XXXX.XXXX" prop="servicePrice">
-              <el-input v-model="queryParams.servicePrice" placeholder="请输入服务费单价:XXXX.XXXX" clearable @keyup.enter="handleQuery" />
+            <el-form-item label="备注" prop="remark">
+              <el-input v-model="queryParams.remark" placeholder="请输入备注" clearable @keyup.enter="handleQuery" />
             </el-form-item>
             <el-form-item>
               <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
@@ -52,85 +38,56 @@
         </el-row>
       </template>
 
-      <el-table v-loading="loading" :data="priceTemplateList" @selection-change="handleSelectionChange">
+      <el-table v-loading="loading" :data="priceTemplateList">
         <el-table-column type="selection" width="55" align="center" />
-        <el-table-column label="自增id" align="center" prop="id" v-if="true" />
-        <el-table-column label="充电站ID" align="center" prop="stationId" />
-        <el-table-column label="价格模版编号" align="center" prop="priceCode" />
-        <el-table-column label="时段起始时间点 6位 HHmmss" align="center" prop="startTime" width="180">
-          <template #default="scope">
-            <span>{{ parseTime(scope.row.startTime, '{y}-{m}-{d}') }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="价格类型:0、尖;1、峰;2、平;3、谷;" align="center" prop="priceType" />
-        <el-table-column label="电价:XXXX.XXXX" align="center" prop="elecPrice" />
-        <el-table-column label="服务费单价:XXXX.XXXX" align="center" prop="servicePrice" />
+        <el-table-column label="计费编号" align="center" prop="priceCode" />
         <el-table-column label="备注" align="center" prop="remark" />
-        <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+        <el-table-column label="最后修改时间" align="center" prop="time" width="180" />
+        <el-table-column label="操作" align="center" width="200">
           <template #default="scope">
-            <el-tooltip content="修改" placement="top">
-              <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['kpSystem:priceTemplate:edit']"></el-button>
-            </el-tooltip>
-            <el-tooltip content="删除" placement="top">
-              <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)" v-hasPermi="['kpSystem:priceTemplate:remove']"></el-button>
-            </el-tooltip>
+            <el-button link type="primary" @click="handleUpdate(scope.row)">修改</el-button>
+            <el-button link type="primary" @click="handleDelete(scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
 
       <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" @pagination="getList" />
     </el-card>
-    <!-- 添加或修改站点价格模版对话框 -->
-    <el-dialog :title="dialog.title" v-model="dialog.visible" width="500px" append-to-body>
-      <el-form ref="priceTemplateFormRef" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="充电站ID" prop="stationId">
-          <el-input v-model="form.stationId" placeholder="请输入充电站ID" />
-        </el-form-item>
-        <el-form-item label="时段起始时间点 6位 HHmmss" prop="startTime">
-          <el-date-picker clearable
-            v-model="form.startTime"
-            type="datetime"
-            value-format="YYYY-MM-DD HH:mm:ss"
-            placeholder="请选择时段起始时间点 6位 HHmmss">
-          </el-date-picker>
-        </el-form-item>
-        <el-form-item label="电价:XXXX.XXXX" prop="elecPrice">
-          <el-input v-model="form.elecPrice" placeholder="请输入电价:XXXX.XXXX" />
-        </el-form-item>
-        <el-form-item label="服务费单价:XXXX.XXXX" prop="servicePrice">
-          <el-input v-model="form.servicePrice" placeholder="请输入服务费单价:XXXX.XXXX" />
-        </el-form-item>
-        <el-form-item label="备注" prop="remark">
-          <el-input v-model="form.remark" placeholder="请输入备注" />
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button :loading="buttonLoading" type="primary" @click="submitForm">确 定</el-button>
-          <el-button @click="cancel">取 消</el-button>
-        </div>
-      </template>
-    </el-dialog>
+
+    <!-- 价格规则配置对话框 -->
+    <price-rule-config
+      v-if="dialog.visible"
+      v-model="dialog.visible"
+      :title="dialog.title"
+      @submit="handlePriceRuleSubmit"
+      ref="priceRuleConfigRef"
+    />
   </div>
 </template>
 
 <script setup name="PriceTemplate" lang="ts">
-import { listPriceTemplate, getPriceTemplate, delPriceTemplate, addPriceTemplate, updatePriceTemplate } from '@/api/kpSystem/priceTemplate';
-import { PriceTemplateVO, PriceTemplateQuery, PriceTemplateForm } from '@/api/kpSystem/priceTemplate/types';
+import { ref, reactive, onMounted, nextTick } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import PriceRuleConfig from './components/PriceRuleConfig.vue';
+import { listPriceTemplate, getPriceTemplate, delPriceTemplate, addPriceTemplate, updatePriceTemplate, getPriceTemplateDetail } from '@/api/kpSystem/priceTemplate';
+import { PriceTemplateVO, PriceTemplateForm, PriceTemplateQuery } from '@/api/kpSystem/priceTemplate/types';
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 
-const priceTemplateList = ref<PriceTemplateVO[]>([]);
-const buttonLoading = ref(false);
-const loading = ref(true);
-const showSearch = ref(true);
+const loading = ref(false);
 const ids = ref<Array<string | number>>([]);
+const total = ref(0);
+const priceTemplateList = ref<PriceTemplateVO[]>([]);
+const showSearch = ref(true);
 const single = ref(true);
 const multiple = ref(true);
-const total = ref(0);
 
-const queryFormRef = ref<ElFormInstance>();
-const priceTemplateFormRef = ref<ElFormInstance>();
+const queryParams = reactive<PriceTemplateQuery>({
+  pageNum: 1,
+  pageSize: 10,
+  priceCode: undefined,
+  remark: undefined
+});
 
 const dialog = reactive<DialogOption>({
   visible: false,
@@ -139,11 +96,7 @@ const dialog = reactive<DialogOption>({
 
 const initFormData: PriceTemplateForm = {
   id: undefined,
-  stationId: undefined,
-  startTime: undefined,
-  priceType: undefined,
-  elecPrice: undefined,
-  servicePrice: undefined,
+  priceCode: undefined,
   remark: undefined,
 }
 const data = reactive<PageData<PriceTemplateForm, PriceTemplateQuery>>({
@@ -151,47 +104,37 @@ const data = reactive<PageData<PriceTemplateForm, PriceTemplateQuery>>({
   queryParams: {
     pageNum: 1,
     pageSize: 10,
-    stationId: undefined,
     priceCode: undefined,
-    startTime: undefined,
-    priceType: undefined,
-    elecPrice: undefined,
-    servicePrice: undefined,
-    params: {
-    }
+    remark: undefined,
+    params: {}
   },
   rules: {
-    id: [
-      { required: true, message: "自增id不能为空", trigger: "blur" }
+    priceCode: [
+      { required: true, message: "计费编号不能为空", trigger: "blur" }
     ],
-    stationId: [
-      { required: true, message: "充电站ID不能为空", trigger: "blur" }
-    ],
-    startTime: [
-      { required: true, message: "时段起始时间点 6位 HHmmss不能为空", trigger: "blur" }
-    ],
-    priceType: [
-      { required: true, message: "价格类型:0、尖;1、峰;2、平;3、谷;不能为空", trigger: "change" }
-    ],
-    elecPrice: [
-      { required: true, message: "电价:XXXX.XXXX不能为空", trigger: "blur" }
-    ],
-    servicePrice: [
-      { required: true, message: "服务费单价:XXXX.XXXX不能为空", trigger: "blur" }
-    ],
+    remark: [
+      { required: false, message: "备注不能为空", trigger: "blur" }
+    ]
   }
 });
 
-const { queryParams, form, rules } = toRefs(data);
+const { queryParams: dataQueryParams, form, rules } = toRefs(data);
 
-/** 查询站点价格模版列表 */
+const priceRuleConfigRef = ref();
+
+/** 查询列表 */
 const getList = async () => {
   loading.value = true;
-  const res = await listPriceTemplate(queryParams.value);
-  priceTemplateList.value = res.rows;
-  total.value = res.total;
-  loading.value = false;
-}
+  try {
+    const res = await listPriceTemplate(queryParams);
+    priceTemplateList.value = res.rows;
+    total.value = res.total;
+  } catch (error) {
+    console.error(error);
+  } finally {
+    loading.value = false;
+  }
+};
 
 /** 取消按钮 */
 const cancel = () => {
@@ -202,18 +145,18 @@ const cancel = () => {
 /** 表单重置 */
 const reset = () => {
   form.value = {...initFormData};
-  priceTemplateFormRef.value?.resetFields();
 }
 
 /** 搜索按钮操作 */
 const handleQuery = () => {
-  queryParams.value.pageNum = 1;
+  queryParams.pageNum = 1;
   getList();
 }
 
 /** 重置按钮操作 */
 const resetQuery = () => {
-  queryFormRef.value?.resetFields();
+  queryParams.priceCode = undefined;
+  queryParams.remark = undefined;
   handleQuery();
 }
 
@@ -226,37 +169,36 @@ const handleSelectionChange = (selection: PriceTemplateVO[]) => {
 
 /** 新增按钮操作 */
 const handleAdd = () => {
-  reset();
   dialog.visible = true;
-  dialog.title = "添加站点价格模版";
+  dialog.title = "新增计费规则";
 }
 
 /** 修改按钮操作 */
-const handleUpdate = async (row?: PriceTemplateVO) => {
-  reset();
-  const _id = row?.id || ids.value[0]
-  const res = await getPriceTemplate(_id);
-  Object.assign(form.value, res.data);
-  dialog.visible = true;
-  dialog.title = "修改站点价格模版";
-}
+const handleUpdate = async (row: PriceTemplateVO) => {
+  try {
+    const res = await getPriceTemplateDetail(row.priceCode);
+    dialog.visible = true;
+    dialog.title = "修改计费规则";
+    // 传递详情数据给子组件
+    nextTick(() => {
+      priceRuleConfigRef.value?.setFormData(res.data);
+    });
+  } catch (error) {
+    console.error('获取详情失败:', error);
+  }
+};
 
-/** 提交按钮 */
-const submitForm = () => {
-  priceTemplateFormRef.value?.validate(async (valid: boolean) => {
-    if (valid) {
-      buttonLoading.value = true;
-      if (form.value.id) {
-        await updatePriceTemplate(form.value).finally(() =>  buttonLoading.value = false);
-      } else {
-        await addPriceTemplate(form.value).finally(() =>  buttonLoading.value = false);
-      }
-      proxy?.$modal.msgSuccess("操作成功");
-      dialog.visible = false;
-      await getList();
-    }
-  });
-}
+// 提交处理
+const handlePriceRuleSubmit = async (formData: any) => {
+  try {
+    await addPriceTemplate(formData);
+    ElMessage.success('保存成功');
+    dialog.visible = false;
+    await getList();
+  } catch (error) {
+    console.error('保存失败:', error);
+  }
+};
 
 /** 删除按钮操作 */
 const handleDelete = async (row?: PriceTemplateVO) => {
@@ -270,7 +212,7 @@ const handleDelete = async (row?: PriceTemplateVO) => {
 /** 导出按钮操作 */
 const handleExport = () => {
   proxy?.download('kpSystem/priceTemplate/export', {
-    ...queryParams.value
+    ...queryParams
   }, `priceTemplate_${new Date().getTime()}.xlsx`)
 }
 
