@@ -4,17 +4,8 @@
       <div v-show="showSearch" class="mb-[10px]">
         <el-card shadow="hover">
           <el-form ref="queryFormRef" :model="queryParams" :inline="true">
-            <el-form-item label="站点id" prop="stationId">
-              <el-input v-model="queryParams.stationId" placeholder="请输入站点id" clearable @keyup.enter="handleQuery" />
-            </el-form-item>
-            <el-form-item label="运营商id" prop="operatorId">
-              <el-input v-model="queryParams.operatorId" placeholder="请输入运营商id" clearable @keyup.enter="handleQuery" />
-            </el-form-item>
             <el-form-item label="设备号" prop="equipmentId">
               <el-input v-model="queryParams.equipmentId" placeholder="请输入设备号" clearable @keyup.enter="handleQuery" />
-            </el-form-item>
-            <el-form-item label="枪号" prop="connectorId">
-              <el-input v-model="queryParams.connectorId" placeholder="请输入枪号" clearable @keyup.enter="handleQuery" />
             </el-form-item>
             <el-form-item>
               <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
@@ -26,7 +17,7 @@
     </transition>
 
     <el-card shadow="never">
-      <template #header>
+      <!-- <template #header>
         <el-row :gutter="10" class="mb8">
           <el-col :span="1.5">
             <el-button type="primary" plain icon="Plus" @click="handleAdd" v-hasPermi="['kpSystem:connector:add']">新增</el-button>
@@ -42,20 +33,19 @@
           </el-col>
           <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
         </el-row>
-      </template>
+      </template> -->
 
       <el-table v-loading="loading" :data="connectorList" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" align="center" />
-        <el-table-column label="自增id" align="center" prop="id" v-if="false" />
-        <el-table-column label="站点id" align="center" prop="stationId" />
-        <el-table-column label="运营商id" align="center" prop="operatorId" />
-        <el-table-column label="设备号" align="center" prop="equipmentId" />
-        <el-table-column label="枪号" align="center" prop="connectorId" />
+        <el-table-column v-if="false" label="自增id" align="center" prop="id" />
+        <el-table-column label="站点名称" align="center" prop="stationName" />
+        <el-table-column label="归属运营商" align="center" prop="operatorName" />
+        <el-table-column label="设备编号" align="center" prop="equipmentId" />
+        <el-table-column label="枪号" align="center" prop="connectorNo" />
         <el-table-column label="枪名称" align="center" prop="connectorName" />
-        <el-table-column label="枪类型" align="center" prop="connectorType" />
-        <el-table-column label="国标" align="center" prop="nationalStandard" />
+        <el-table-column label="是否工作" align="center" prop="connectorType" />
         <el-table-column label="状态" align="center" prop="status" />
-        <el-table-column label="创建时间" align="center" prop="createTime" width="180">
+        <el-table-column label="最后更新时间" align="center" prop="updateTime" width="180">
           <template #default="scope">
             <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d}') }}</span>
           </template>
@@ -67,20 +57,17 @@
         </el-table-column>
         <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
           <template #default="scope">
-            <el-tooltip content="修改" placement="top">
-              <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['kpSystem:connector:edit']"></el-button>
-            </el-tooltip>
-            <el-tooltip content="删除" placement="top">
-              <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)" v-hasPermi="['kpSystem:connector:remove']"></el-button>
+            <el-tooltip content="详细" placement="top">
+              <el-button v-hasPermi="['kpSystem:connector:query']" link type="primary" icon="View" @click="handleUpdate(scope.row)"></el-button>
             </el-tooltip>
           </template>
         </el-table-column>
       </el-table>
 
-      <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" @pagination="getList" />
+      <pagination v-show="total > 0" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" :total="total" @pagination="getList" />
     </el-card>
     <!-- 添加或修改充电枪管理对话框 -->
-    <el-dialog :title="dialog.title" v-model="dialog.visible" width="500px" append-to-body>
+    <el-dialog v-model="dialog.visible" :title="dialog.title" width="500px" append-to-body>
       <el-form ref="connectorFormRef" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="站点id" prop="stationId">
           <el-input v-model="form.stationId" placeholder="请输入站点id" />
@@ -142,10 +129,10 @@ const initFormData: ConnectorForm = {
   connectorName: undefined,
   connectorType: undefined,
   nationalStandard: undefined,
-  status: undefined,
-}
+  status: undefined
+};
 const data = reactive<PageData<ConnectorForm, ConnectorQuery>>({
-  form: {...initFormData},
+  form: { ...initFormData },
   queryParams: {
     pageNum: 1,
     pageSize: 10,
@@ -153,31 +140,16 @@ const data = reactive<PageData<ConnectorForm, ConnectorQuery>>({
     operatorId: undefined,
     equipmentId: undefined,
     connectorId: undefined,
-    params: {
-    }
+    params: {}
   },
   rules: {
-    stationId: [
-      { required: true, message: "站点id不能为空", trigger: "blur" }
-    ],
-    operatorId: [
-      { required: true, message: "运营商id不能为空", trigger: "blur" }
-    ],
-    equipmentId: [
-      { required: true, message: "设备号不能为空", trigger: "blur" }
-    ],
-    connectorId: [
-      { required: true, message: "枪号不能为空", trigger: "blur" }
-    ],
-    connectorName: [
-      { required: true, message: "枪名称不能为空", trigger: "blur" }
-    ],
-    connectorType: [
-      { required: true, message: "枪类型不能为空", trigger: "change" }
-    ],
-    nationalStandard: [
-      { required: true, message: "国标不能为空", trigger: "blur" }
-    ],
+    stationId: [{ required: true, message: '站点id不能为空', trigger: 'blur' }],
+    operatorId: [{ required: true, message: '运营商id不能为空', trigger: 'blur' }],
+    equipmentId: [{ required: true, message: '设备号不能为空', trigger: 'blur' }],
+    connectorId: [{ required: true, message: '枪号不能为空', trigger: 'blur' }],
+    connectorName: [{ required: true, message: '枪名称不能为空', trigger: 'blur' }],
+    connectorType: [{ required: true, message: '枪类型不能为空', trigger: 'change' }],
+    nationalStandard: [{ required: true, message: '国标不能为空', trigger: 'blur' }]
   }
 });
 
@@ -187,58 +159,59 @@ const { queryParams, form, rules } = toRefs(data);
 const getList = async () => {
   loading.value = true;
   const res = await listConnector(queryParams.value);
-  connectorList.value = res.rows;
+  // connectorList.value = res.rows;
+  connectorList.value = [{}];
   total.value = res.total;
   loading.value = false;
-}
+};
 
 /** 取消按钮 */
 const cancel = () => {
   reset();
   dialog.visible = false;
-}
+};
 
 /** 表单重置 */
 const reset = () => {
-  form.value = {...initFormData};
+  form.value = { ...initFormData };
   connectorFormRef.value?.resetFields();
-}
+};
 
 /** 搜索按钮操作 */
 const handleQuery = () => {
   queryParams.value.pageNum = 1;
   getList();
-}
+};
 
 /** 重置按钮操作 */
 const resetQuery = () => {
   queryFormRef.value?.resetFields();
   handleQuery();
-}
+};
 
 /** 多选框选中数据 */
 const handleSelectionChange = (selection: ConnectorVO[]) => {
-  ids.value = selection.map(item => item.id);
+  ids.value = selection.map((item) => item.id);
   single.value = selection.length != 1;
   multiple.value = !selection.length;
-}
+};
 
 /** 新增按钮操作 */
 const handleAdd = () => {
   reset();
   dialog.visible = true;
-  dialog.title = "添加充电枪管理";
-}
+  dialog.title = '添加充电枪管理';
+};
 
 /** 修改按钮操作 */
 const handleUpdate = async (row?: ConnectorVO) => {
   reset();
-  const _id = row?.id || ids.value[0]
-  const res = await getConnector(_id);
-  Object.assign(form.value, res.data);
+  // const _id = row?.id || ids.value[0];
+  // const res = await getConnector(_id);
+  // Object.assign(form.value, res.data);
   dialog.visible = true;
-  dialog.title = "修改充电枪管理";
-}
+  dialog.title = '修改充电枪管理';
+};
 
 /** 提交按钮 */
 const submitForm = () => {
@@ -246,32 +219,36 @@ const submitForm = () => {
     if (valid) {
       buttonLoading.value = true;
       if (form.value.id) {
-        await updateConnector(form.value).finally(() =>  buttonLoading.value = false);
+        await updateConnector(form.value).finally(() => (buttonLoading.value = false));
       } else {
-        await addConnector(form.value).finally(() =>  buttonLoading.value = false);
+        await addConnector(form.value).finally(() => (buttonLoading.value = false));
       }
-      proxy?.$modal.msgSuccess("操作成功");
+      proxy?.$modal.msgSuccess('操作成功');
       dialog.visible = false;
       await getList();
     }
   });
-}
+};
 
 /** 删除按钮操作 */
 const handleDelete = async (row?: ConnectorVO) => {
   const _ids = row?.id || ids.value;
-  await proxy?.$modal.confirm('是否确认删除充电枪管理编号为"' + _ids + '"的数据项？').finally(() => loading.value = false);
+  await proxy?.$modal.confirm('是否确认删除充电枪管理编号为"' + _ids + '"的数据项？').finally(() => (loading.value = false));
   await delConnector(_ids);
-  proxy?.$modal.msgSuccess("删除成功");
+  proxy?.$modal.msgSuccess('删除成功');
   await getList();
-}
+};
 
 /** 导出按钮操作 */
 const handleExport = () => {
-  proxy?.download('kpSystem/connector/export', {
-    ...queryParams.value
-  }, `connector_${new Date().getTime()}.xlsx`)
-}
+  proxy?.download(
+    'kpSystem/connector/export',
+    {
+      ...queryParams.value
+    },
+    `connector_${new Date().getTime()}.xlsx`
+  );
+};
 
 onMounted(() => {
   getList();
