@@ -56,7 +56,6 @@
           </template>
         </el-table-column>
         <el-table-column label="最后更新时间" align="center" prop="updateTime" width="180" />
-        <el-table-column label="更新时间" align="center" prop="updateTime" width="180" />
         <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
           <template #default="scope">
             <el-tooltip content="详细" placement="top">
