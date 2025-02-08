@@ -36,25 +36,27 @@
       </template> -->
 
       <el-table v-loading="loading" :data="connectorList" @selection-change="handleSelectionChange">
-        <el-table-column type="selection" width="55" align="center" />
+        <!-- <el-table-column type="selection" width="55" align="center" /> -->
         <el-table-column v-if="false" label="自增id" align="center" prop="id" />
         <el-table-column label="站点名称" align="center" prop="stationName" />
         <el-table-column label="归属运营商" align="center" prop="operatorName" />
         <el-table-column label="设备编号" align="center" prop="equipmentId" />
         <el-table-column label="枪号" align="center" prop="connectorNo" />
         <el-table-column label="枪名称" align="center" prop="connectorName" />
-        <el-table-column label="是否工作" align="center" prop="connectorType" />
-        <el-table-column label="状态" align="center" prop="status" />
-        <el-table-column label="最后更新时间" align="center" prop="updateTime" width="180">
+        <el-table-column label="额定电流" align="center" prop="currentValue" />
+        <el-table-column label="额定功率" align="center" prop="power" />
+        <el-table-column label="连网类型" align="center" prop="netType">
           <template #default="scope">
-            <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d}') }}</span>
+            <dict-tag :options="kp_net_type" :value="scope.row.equipmentType" />
           </template>
         </el-table-column>
-        <el-table-column label="更新时间" align="center" prop="updateTime" width="180">
+        <el-table-column label="状态" align="center" prop="status">
           <template #default="scope">
-            <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d}') }}</span>
+            <dict-tag :options="kp_connector_status" :value="scope.row.status" />
           </template>
         </el-table-column>
+        <el-table-column label="最后更新时间" align="center" prop="updateTime" width="180" />
+        <el-table-column label="更新时间" align="center" prop="updateTime" width="180" />
         <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
           <template #default="scope">
             <el-tooltip content="详细" placement="top">
@@ -101,8 +103,10 @@
 <script setup name="Connector" lang="ts">
 import { listConnector, getConnector, delConnector, addConnector, updateConnector } from '@/api/kpSystem/connector';
 import { ConnectorVO, ConnectorQuery, ConnectorForm } from '@/api/kpSystem/connector/types';
-
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
+const { kp_net_type, kp_equipment_type, kp_connector_status } = toRefs<any>(
+  proxy?.useDict('kp_net_type', 'kp_equipment_type', 'kp_connector_status')
+);
 
 const connectorList = ref<ConnectorVO[]>([]);
 const buttonLoading = ref(false);
@@ -159,8 +163,7 @@ const { queryParams, form, rules } = toRefs(data);
 const getList = async () => {
   loading.value = true;
   const res = await listConnector(queryParams.value);
-  // connectorList.value = res.rows;
-  connectorList.value = [{}];
+  connectorList.value = res.rows;
   total.value = res.total;
   loading.value = false;
 };

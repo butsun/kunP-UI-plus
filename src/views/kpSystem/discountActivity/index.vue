@@ -4,8 +4,8 @@
       <div v-show="showSearch" class="mb-[10px]">
         <el-card shadow="hover">
           <el-form ref="queryFormRef" :model="queryParams" :inline="true">
-            <el-form-item label="站点名称" prop="stationId">
-              <el-select v-model="form.operatorId" filterable placeholder="请选择运营商">
+            <el-form-item label="运营商" prop="operatorId">
+              <el-select v-model="queryParams.operatorId" filterable clearable placeholder="请选择运营商">
                 <el-option v-for="item in operatorOptions" :key="item.value" :label="item.label" :value="item.value" />
               </el-select>
             </el-form-item>
@@ -191,7 +191,6 @@ const data = reactive<PageData<DiscountActivityForm, DiscountActivityQuery>>({
     pageSize: 10,
     activityName: undefined,
     operatorId: undefined,
-    stationId: undefined,
     disService: undefined,
     disElectricity: undefined,
     params: {}

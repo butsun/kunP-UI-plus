@@ -67,15 +67,15 @@
         </el-table-column>
         <el-table-column label="连网类型" align="center" prop="netType">
           <template #default="scope">
-            <dict-tag :options="kp_net_type" :value="scope.row.equipmentType" />
+            <dict-tag :options="kp_net_type" :value="scope.row.netType" />
           </template>
         </el-table-column>
-        <el-table-column label="创建时间" align="center" prop="createTime" />
-        <el-table-column label="最近上线时间" align="center" prop="onlineTm" width="180">
-          <template #default="scope">
+        <el-table-column label="创建时间" align="center" prop="createTime" width="180" />
+        <el-table-column label="最近上线时间" align="center" prop="onlineTm" width="180" />
+        <!-- <template #default="scope">
             <span>{{ parseTime(scope.row.onlineTm, '{y}-{m}-{d}') }}</span>
-          </template>
-        </el-table-column>
+          </template> -->
+        <!-- </el-table-column> -->
         <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
           <template #default="scope">
             <el-tooltip content="修改" placement="top">
@@ -242,7 +242,12 @@ const getList = async () => {
 const equipmentLists = async () => {
   loading.value = true;
   const res = await equipmentLike();
-  equipmentoptions.value = res.rows;
+  equipmentoptions.value = res.rows.map((item: any) => ({
+    label: item.equipmentNo,
+    value: item.equipmentNo,
+    name: item.equipmentNo
+  }));
+  console.log('res.rows', equipmentoptions.value);
   loading.value = false;
 };
 /** 模糊查询站点列表 */

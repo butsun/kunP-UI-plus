@@ -4,14 +4,8 @@
       <div v-show="showSearch" class="mb-[10px]">
         <el-card shadow="hover">
           <el-form ref="queryFormRef" :model="queryParams" :inline="true">
-            <el-form-item label="凭证编号" prop="voucherNumber">
+            <el-form-item label="账户编号" prop="voucherNumber">
               <el-input v-model="queryParams.voucherNumber" placeholder="请输入凭证编号" clearable @keyup.enter="handleQuery" />
-            </el-form-item>
-            <el-form-item label="归属运营商" prop="operatorId">
-              <el-input v-model="queryParams.operatorId" placeholder="请输入归属运营商" clearable @keyup.enter="handleQuery" />
-            </el-form-item>
-            <el-form-item label="禁用" prop="disableFlag">
-              <el-input v-model="queryParams.disableFlag" placeholder="请输入禁用" clearable @keyup.enter="handleQuery" />
             </el-form-item>
             <el-form-item>
               <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
@@ -26,86 +20,87 @@
       <template #header>
         <el-row :gutter="10" class="mb8">
           <el-col :span="1.5">
-            <el-button type="primary" plain icon="Plus" @click="handleAdd" v-hasPermi="['kpSystem:chargeVoucher:add']">新增</el-button>
+            <el-button v-hasPermi="['kpSystem:chargeVoucher:add']" type="primary" plain icon="Plus" @click="handleAdd">新增</el-button>
           </el-col>
           <el-col :span="1.5">
-            <el-button type="success" plain icon="Edit" :disabled="single" @click="handleUpdate()" v-hasPermi="['kpSystem:chargeVoucher:edit']">修改</el-button>
+            <el-button v-hasPermi="['kpSystem:chargeVoucher:edit']" type="success" plain icon="Edit" :disabled="single" @click="handleUpdate()"
+              >修改</el-button
+            >
           </el-col>
           <el-col :span="1.5">
-            <el-button type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete()" v-hasPermi="['kpSystem:chargeVoucher:remove']">删除</el-button>
+            <el-button v-hasPermi="['kpSystem:chargeVoucher:remove']" type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete()"
+              >删除</el-button
+            >
           </el-col>
           <el-col :span="1.5">
-            <el-button type="warning" plain icon="Download" @click="handleExport" v-hasPermi="['kpSystem:chargeVoucher:export']">导出</el-button>
+            <el-button v-hasPermi="['kpSystem:chargeVoucher:export']" type="warning" plain icon="Download" @click="handleExport">导出</el-button>
           </el-col>
-          <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
+          <right-toolbar v-model:showSearch="showSearch" @query-table="getList"></right-toolbar>
         </el-row>
       </template>
 
       <el-table v-loading="loading" :data="chargeVoucherList" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" align="center" />
-        <el-table-column label="自增id" align="center" prop="id" v-if="false" />
+        <el-table-column v-if="false" label="自增id" align="center" prop="id" />
         <el-table-column label="凭证编号" align="center" prop="voucherNumber" />
-        <el-table-column label="归属运营商" align="center" prop="operatorId" />
         <el-table-column label="凭证类型" align="center" prop="voucherType">
           <template #default="scope">
-            <dict-tag :options="kp_voucher_type" :value="scope.row.voucherType"/>
+            <dict-tag :options="kp_voucher_type" :value="scope.row.voucherType" />
           </template>
         </el-table-column>
-        <el-table-column label="归属账户" align="center" prop="accountId" />
-        <el-table-column label="禁用" align="center" prop="disableFlag">
-          <template #default="scope">
-            <dict-tag :options="kp_disable_flag" :value="scope.row.disableFlag"/>
-          </template>
-        </el-table-column>
-        <el-table-column label="备注" align="center" prop="remark" />
-        <el-table-column label="创建时间" align="center" prop="createTime" width="180">
-          <template #default="scope">
-            <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d}') }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="更新时间" align="center" prop="updateTime" width="180">
-          <template #default="scope">
-            <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d}') }}</span>
-          </template>
-        </el-table-column>
+        <el-table-column label="归属运营商" align="center" prop="operatorName" />
+        <el-table-column label="归属账户" align="center" prop="nickName" />
+        <el-table-column label="创建时间" align="center" prop="createTime" width="180" />
+        <el-table-column label="更新时间" align="center" prop="updateTime" width="180" />
         <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
           <template #default="scope">
             <el-tooltip content="修改" placement="top">
-              <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['kpSystem:chargeVoucher:edit']"></el-button>
+              <el-button v-hasPermi="['kpSystem:chargeVoucher:edit']" link type="primary" icon="Edit" @click="handleUpdate(scope.row)"></el-button>
             </el-tooltip>
             <el-tooltip content="删除" placement="top">
-              <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)" v-hasPermi="['kpSystem:chargeVoucher:remove']"></el-button>
+              <el-button
+                v-hasPermi="['kpSystem:chargeVoucher:remove']"
+                link
+                type="primary"
+                icon="Delete"
+                @click="handleDelete(scope.row)"
+              ></el-button>
             </el-tooltip>
           </template>
         </el-table-column>
       </el-table>
 
-      <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" @pagination="getList" />
+      <pagination v-show="total > 0" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" :total="total" @pagination="getList" />
     </el-card>
     <!-- 添加或修改充电凭证管理对话框 -->
-    <el-dialog :title="dialog.title" v-model="dialog.visible" width="500px" append-to-body>
-      <el-form ref="chargeVoucherFormRef" :model="form" :rules="rules" label-width="80px">
+    <el-dialog v-model="dialog.visible" :title="dialog.title" width="500px" append-to-body>
+      <el-form ref="chargeVoucherFormRef" :model="form" :rules="rules" label-width="100px">
         <el-form-item label="凭证编号" prop="voucherNumber">
           <el-input v-model="form.voucherNumber" placeholder="请输入凭证编号" />
         </el-form-item>
         <el-form-item label="归属运营商" prop="operatorId">
-          <el-input v-model="form.operatorId" placeholder="请输入归属运营商" />
+          <el-select v-model="form.operatorId" placeholder="请选择运营商" clearable filterable @change="handleQuery">
+            <el-option v-for="item in operatorList" :key="item.id" :label="item.operatorName" :value="item.id" />
+          </el-select>
         </el-form-item>
         <el-form-item label="凭证类型" prop="voucherType">
           <el-select v-model="form.voucherType" placeholder="请选择凭证类型">
-            <el-option
-                v-for="dict in kp_voucher_type"
-                :key="dict.value"
-                :label="dict.label"
-                :value="parseInt(dict.value)"
-            ></el-option>
+            <el-option v-for="dict in kp_voucher_type" :key="dict.value" :label="dict.label" :value="parseInt(dict.value)"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="归属账户" prop="accountId">
-          <el-input v-model="form.accountId" placeholder="请输入归属账户" />
+          <el-select v-model="form.accountId" placeholder="请选择运营商" clearable filterable @change="handleQuery">
+            <el-option v-for="item in accountList" :key="item.id" :label="item.nickName" :value="item.id" />
+          </el-select>
         </el-form-item>
-        <el-form-item label="禁用" prop="disableFlag">
+        <!-- <el-form-item label="禁用" prop="disableFlag">
           <el-input v-model="form.disableFlag" placeholder="请输入禁用" />
+        </el-form-item> -->
+        <el-form-item label="状态" prop="disableFlag">
+          <!-- <el-input v-model="form.disableFlag" placeholder="请输入禁用" /> -->
+          <el-select v-model="form.disableFlag" placeholder="请选择禁用类型">
+            <el-option v-for="dict in kp_disable_flag" :key="dict.value" :label="dict.label" :value="parseInt(dict.value)"></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="备注" prop="remark">
           <el-input v-model="form.remark" placeholder="请输入备注" />
@@ -126,7 +121,9 @@ import { listChargeVoucher, getChargeVoucher, delChargeVoucher, addChargeVoucher
 import { ChargeVoucherVO, ChargeVoucherQuery, ChargeVoucherForm } from '@/api/kpSystem/chargeVoucher/types';
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { kp_voucher_type } = toRefs<any>(proxy?.useDict('kp_voucher_type'));
+const { kp_voucher_type, kp_disable_flag } = toRefs<any>(proxy?.useDict('kp_voucher_type', 'kp_disable_flag'));
+import { listOperator } from '@/api/kpSystem/operator';
+import { listChargeAccount } from '@/api/kpSystem/chargeAccount';
 
 const chargeVoucherList = ref<ChargeVoucherVO[]>([]);
 const buttonLoading = ref(false);
@@ -151,32 +148,24 @@ const initFormData: ChargeVoucherForm = {
   voucherType: undefined,
   accountId: undefined,
   disableFlag: undefined,
-  remark: undefined,
-}
-const data = reactive<PageData<ChargeVoucherForm, ChargeVoucherQuery>>({
-  form: {...initFormData},
+  remark: undefined
+};
+const data = reactive({
+  form: { ...initFormData },
   queryParams: {
     pageNum: 1,
     pageSize: 10,
     voucherNumber: undefined,
     operatorId: undefined,
     disableFlag: undefined,
-    params: {
-    }
+    accountId: undefined,
+    params: {}
   },
   rules: {
-    voucherNumber: [
-      { required: true, message: "凭证编号不能为空", trigger: "blur" }
-    ],
-    operatorId: [
-      { required: true, message: "归属运营商不能为空", trigger: "blur" }
-    ],
-    voucherType: [
-      { required: true, message: "凭证类型不能为空", trigger: "change" }
-    ],
-    accountId: [
-      { required: true, message: "归属账户不能为空", trigger: "blur" }
-    ],
+    voucherNumber: [{ required: true, message: '凭证编号不能为空', trigger: 'blur' }],
+    operatorId: [{ required: true, message: '归属运营商不能为空', trigger: 'blur' }],
+    voucherType: [{ required: true, message: '凭证类型不能为空', trigger: 'change' }],
+    accountId: [{ required: true, message: '归属账户不能为空', trigger: 'blur' }]
   }
 });
 
@@ -189,55 +178,55 @@ const getList = async () => {
   chargeVoucherList.value = res.rows;
   total.value = res.total;
   loading.value = false;
-}
+};
 
 /** 取消按钮 */
 const cancel = () => {
   reset();
   dialog.visible = false;
-}
+};
 
 /** 表单重置 */
 const reset = () => {
-  form.value = {...initFormData};
+  form.value = { ...initFormData };
   chargeVoucherFormRef.value?.resetFields();
-}
+};
 
 /** 搜索按钮操作 */
 const handleQuery = () => {
   queryParams.value.pageNum = 1;
   getList();
-}
+};
 
 /** 重置按钮操作 */
 const resetQuery = () => {
   queryFormRef.value?.resetFields();
   handleQuery();
-}
+};
 
 /** 多选框选中数据 */
 const handleSelectionChange = (selection: ChargeVoucherVO[]) => {
-  ids.value = selection.map(item => item.id);
+  ids.value = selection.map((item) => item.id);
   single.value = selection.length != 1;
   multiple.value = !selection.length;
-}
+};
 
 /** 新增按钮操作 */
 const handleAdd = () => {
   reset();
   dialog.visible = true;
-  dialog.title = "添加充电凭证管理";
-}
+  dialog.title = '添加充电凭证管理';
+};
 
 /** 修改按钮操作 */
 const handleUpdate = async (row?: ChargeVoucherVO) => {
   reset();
-  const _id = row?.id || ids.value[0]
+  const _id = row?.id || ids.value[0];
   const res = await getChargeVoucher(_id);
   Object.assign(form.value, res.data);
   dialog.visible = true;
-  dialog.title = "修改充电凭证管理";
-}
+  dialog.title = '修改充电凭证管理';
+};
 
 /** 提交按钮 */
 const submitForm = () => {
@@ -245,34 +234,61 @@ const submitForm = () => {
     if (valid) {
       buttonLoading.value = true;
       if (form.value.id) {
-        await updateChargeVoucher(form.value).finally(() =>  buttonLoading.value = false);
+        await updateChargeVoucher(form.value).finally(() => (buttonLoading.value = false));
       } else {
-        await addChargeVoucher(form.value).finally(() =>  buttonLoading.value = false);
+        await addChargeVoucher(form.value).finally(() => (buttonLoading.value = false));
       }
-      proxy?.$modal.msgSuccess("操作成功");
+      proxy?.$modal.msgSuccess('操作成功');
       dialog.visible = false;
       await getList();
     }
   });
-}
+};
 
 /** 删除按钮操作 */
 const handleDelete = async (row?: ChargeVoucherVO) => {
   const _ids = row?.id || ids.value;
-  await proxy?.$modal.confirm('是否确认删除充电凭证管理编号为"' + _ids + '"的数据项？').finally(() => loading.value = false);
+  await proxy?.$modal.confirm('是否确认删除充电凭证管理编号为"' + _ids + '"的数据项？').finally(() => (loading.value = false));
   await delChargeVoucher(_ids);
-  proxy?.$modal.msgSuccess("删除成功");
+  proxy?.$modal.msgSuccess('删除成功');
   await getList();
-}
+};
 
 /** 导出按钮操作 */
 const handleExport = () => {
-  proxy?.download('kpSystem/chargeVoucher/export', {
-    ...queryParams.value
-  }, `chargeVoucher_${new Date().getTime()}.xlsx`)
-}
-
+  proxy?.download(
+    'kpSystem/chargeVoucher/export',
+    {
+      ...queryParams.value
+    },
+    `chargeVoucher_${new Date().getTime()}.xlsx`
+  );
+};
+const operatorList = ref([]);
+const accountList = ref([]);
+const getOperatorList = async () => {
+  try {
+    const res = await listOperator();
+    if (res.code === 200) {
+      operatorList.value = res.rows || [];
+    }
+  } catch (error) {
+    console.error('获取运营商列表失败:', error);
+  }
+};
+const getAccountList = async () => {
+  try {
+    const res = await listChargeAccount();
+    if (res.code === 200) {
+      accountList.value = res.rows || [];
+    }
+  } catch (error) {
+    console.error('获取运营商列表失败:', error);
+  }
+};
 onMounted(() => {
+  getOperatorList();
+  getAccountList();
   getList();
 });
 </script>

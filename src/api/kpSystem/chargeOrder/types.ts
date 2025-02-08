@@ -1,4 +1,5 @@
 export interface ChargeOrderVO {
+id: any;
   /**
    * 订单号
    */
