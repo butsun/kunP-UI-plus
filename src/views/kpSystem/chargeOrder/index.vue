@@ -56,10 +56,10 @@
         </el-row>
       </template>
 
-      <el-table v-loading="loading" :data="chargeOrderList" @selection-change="handleSelectionChange">
+      <el-table v-loading="loading" :data="chargeOrderList" @selection-change="handleSelectionChange" @expand-change="handleExpandChange">
         <el-table-column type="selection" width="55" align="center" />
         <el-table-column v-if="false" label="" align="center" prop="id" />
-        <el-table-column label="订单号" align="center" prop="startChargeSeq" />
+        <el-table-column label="订单号" align="center" prop="startChargeSeq" width="80" :cell-style="{ whiteSpace: 'nowrap' }" />
         <el-table-column label="站点" align="center" prop="stationName" />
         <el-table-column label="运营商" align="center" prop="operatorName" />
         <el-table-column label="充电金额" align="center" prop="finalTotalMoney" />
@@ -78,73 +78,76 @@
             <dict-tag :options="kp_start_charge_seq_stat" :value="scope.row.startChargeSeqStat" />
           </template>
         </el-table-column>
-        <el-table-column label="" type="expand">
-          <template #="">
+        <el-table-column type="expand">
+          <template #default="scope">
             <div class="order-detail">
+              <!-- 订单详情 -->
               <div class="header">
                 <div class="detail-title" :style="`font-size: var(--el-font-size-large)`">订单详情</div>
               </div>
               <div class="detail-container">
                 <div class="order-status">
-                  <dict-tag :options="kp_start_charge_seq_stat" :value="form.startChargeSeqStat" />
+                  <dict-tag :options="kp_start_charge_seq_stat" :value="scope.row.startChargeSeqStat" />
                 </div>
                 <div m="4">
                   <div>
-                    <p m="t-0 b-2">订单编号: {{ form.startChargeSeq }}</p>
-                    <p m="t-0 b-2">充电凭证:{{ form.voucherNo }}</p>
-                    <p m="t-0 b-2">启动方式: {{ form.startType }}</p>
-                    <p m="t-0 b-2">充电量: {{ form.totalPower }}</p>
+                    <p m="t-0 b-2"><span>订单编号:</span> {{ scope.row.startChargeSeq }}</p>
+                    <p m="t-0 b-2"><span>充电凭证:</span> {{ scope.row.voucherNo }}</p>
+                    <p m="t-0 b-2"><span>启动方式: </span> {{ scope.row.startType }}</p>
+                    <p m="t-0 b-2"><span>充电量: </span> {{ scope.row.totalPower }}</p>
                   </div>
                   <div class="flex">
-                    <p m="t-0 b-2">开始充电时间: {{ form.startTime }}</p>
-                    <p m="t-0 b-2">结束充电: {{ form.endTime }}</p>
+                    <p m="t-0 b-2"><span>开始充电时间: </span> {{ scope.row.startTime }}</p>
+                    <p m="t-0 b-2"><span>结束充电:</span> {{ scope.row.endTime }}</p>
                   </div>
-                  <p m="t-0 b-2">充电结束原因: {{ form.stopReason }}</p>
+                  <p m="t-0 b-2"><span>充电结束原因:</span> {{ scope.row.stopReason }}</p>
                 </div>
               </div>
+
+              <!-- 设备信息 -->
               <div class="header">
                 <div class="detail-title" :style="`font-size: var(--el-font-size-large)`">设备信息</div>
               </div>
               <div class="detail-container">
-                <div class="order-status">
-                  <dict-tag :options="kp_start_charge_seq_stat" :value="form.startChargeSeqStat" />
-                </div>
                 <div m="4">
                   <div class="flex">
-                    <p m="t-0 b-2">充电设备: {{ form.equipmentId }}</p>
-                    <p m="t-0 b-2">站点: {{ form.stationName }}</p>
-                    <p m="t-0 b-2">运营商: {{ form.operatorName }}</p>
+                    <p m="t-0 b-2"><span>充电设备: </span> {{ scope.row.equipmentId }}</p>
+                    <p m="t-0 b-2"><span>站点: </span> {{ scope.row.stationName }}</p>
+                    <p m="t-0 b-2"><span>运营商:</span> {{ scope.row.operatorName }}</p>
                   </div>
                   <div class="flex">
-                    <p m="t-0 b-2">枪口编号: {{ form.connectorNo }}</p>
+                    <p m="t-0 b-2"><span>枪口编号: </span>{{ scope.row.connectorNo }}</p>
                   </div>
                   <div class="flex">
-                    <p m="t-0 b-2">电流:{{ form.current }}</p>
-                    <p m="t-0 b-2">电压:{{ form.voltage }}</p>
-                    <p m="t-0 b-2">soc:{{ form.soc }}</p>
+                    <p m="t-0 b-2"><span>电流:</span> {{ scope.row.current }}</p>
+                    <p m="t-0 b-2"><span>电压:</span>{{ scope.row.voltage }}</p>
+                    <p m="t-0 b-2"><span>soc:</span>{{ scope.row.soc }}</p>
                   </div>
                 </div>
               </div>
+
+              <!-- 费用信息 -->
               <div class="header">
                 <div class="detail-title" :style="`font-size: var(--el-font-size-large)`">费用信息</div>
               </div>
               <div class="detail-container">
                 <div m="4">
                   <div class="flex">
-                    <p m="t-0 b-2">电费（元）: {{ form.elecMoney }}</p>
-                    <p m="t-0 b-2">优惠后电费（元）: {{ form.finalElecMoney }}</p>
+                    <p m="t-0 b-2"><span>电费（元）:</span> {{ scope.row.elecMoney }}</p>
+                    <p m="t-0 b-2"><span>优惠后电费（元）:</span> {{ scope.row.finalElecMoney }}</p>
                   </div>
                   <div class="flex">
-                    <p m="t-0 b-2">服务费（元）: {{ form.serviceMoney }}</p>
-                    <p m="t-0 b-2">优惠后服务费（元）: {{ form.finalServiceMoney }}</p>
+                    <p m="t-0 b-2"><span>服务费（元）:</span> {{ scope.row.serviceMoney }}</p>
+                    <p m="t-0 b-2"><span>优惠后服务费（元）:</span> {{ scope.row.finalServiceMoney }}</p>
                   </div>
                   <div class="flex">
                     <p m="t-0 b-2"></p>
-                    <p m="t-0 b-2" class="money">总金额（元）: {{ form.finalTotalMoney }}</p>
+                    <p m="t-0 b-2" class="money"><span>总金额（元）:</span> {{ scope.row.finalTotalMoney }}</p>
                   </div>
                 </div>
               </div>
             </div>
+            <!-- <div v-else class="loading-text">加载中...</div> -->
           </template>
         </el-table-column>
         <!-- <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
@@ -240,8 +243,7 @@ const getList = async () => {
   queryParams.value.params = {};
   proxy?.addDateRange(queryParams.value, dateRangeStartTime.value, 'StartTime');
   const res = await listChargeOrder(queryParams.value);
-  chargeOrderList.value = [{}];
-  // chargeOrderList.value = res.rows;
+  chargeOrderList.value = res.rows;
   total.value = res.total;
   loading.value = false;
 };
@@ -348,10 +350,32 @@ onMounted(() => {
   getList();
   equipmentLists();
 });
+
+// 处理展开行事件
+const handleExpandChange = async (row, expandedRows) => {
+  if (expandedRows.includes(row)) {
+    try {
+      // 调用接口获取详情（假设接口为 getOrderDetails）
+      // const response = await fetch(`/api/order/${row.id}`);
+      const data = await getChargeOrder(row.id);
+      console.log('data>>>>>>>>', data);
+      // const data = await response.json();
+      // 更新当前行数据
+      row = data;
+      row.detailsLoaded = true;
+    } catch (error) {
+      ElMessage.error('加载详情失败');
+      console.error('接口错误:', error);
+    }
+  }
+};
 </script>
 <style lang="scss" scoped>
 .detail-container {
   position: relative;
+  span {
+    color: gray;
+  }
   .order-status {
     position: absolute;
     right: 10px;
