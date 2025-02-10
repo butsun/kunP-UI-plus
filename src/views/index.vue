@@ -77,6 +77,7 @@ const goTarget = (url: string) => {
   }
   .index-bj {
     width: 100%;
+    height: 90vh;
   }
 }
 </style>
