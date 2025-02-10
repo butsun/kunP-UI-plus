@@ -23,26 +23,30 @@
       <template #header>
         <el-row :gutter="10" class="mb8">
           <el-col :span="1.5">
-            <el-button type="primary" plain icon="Plus" @click="handleAdd" v-hasPermi="['kpSystem:priceTemplate:add']">新增</el-button>
+            <el-button v-hasPermi="['kpSystem:priceTemplate:add']" type="primary" plain icon="Plus" @click="handleAdd">新增</el-button>
           </el-col>
           <el-col :span="1.5">
-            <el-button type="success" plain icon="Edit" :disabled="single" @click="handleUpdate()" v-hasPermi="['kpSystem:priceTemplate:edit']">修改</el-button>
+            <el-button v-hasPermi="['kpSystem:priceTemplate:edit']" type="success" plain icon="Edit" :disabled="single" @click="handleUpdate()"
+              >修改</el-button
+            >
           </el-col>
           <el-col :span="1.5">
-            <el-button type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete()" v-hasPermi="['kpSystem:priceTemplate:remove']">删除</el-button>
+            <el-button v-hasPermi="['kpSystem:priceTemplate:remove']" type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete()"
+              >删除</el-button
+            >
           </el-col>
           <el-col :span="1.5">
-            <el-button type="warning" plain icon="Download" @click="handleExport" v-hasPermi="['kpSystem:priceTemplate:export']">导出</el-button>
+            <el-button v-hasPermi="['kpSystem:priceTemplate:export']" type="warning" plain icon="Download" @click="handleExport">导出</el-button>
           </el-col>
-          <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
+          <right-toolbar v-model:showSearch="showSearch" @query-table="getList"></right-toolbar>
         </el-row>
       </template>
 
       <el-table v-loading="loading" :data="priceTemplateList">
         <el-table-column type="selection" width="55" align="center" />
-        <el-table-column label="计费编号" align="center" prop="priceCode" />
+        <el-table-column label="模版名称" align="center" prop="priceName" />
         <el-table-column label="备注" align="center" prop="remark" />
-        <el-table-column label="最后修改时间" align="center" prop="time" width="180" />
+        <el-table-column label="最后修改时间" align="center" prop="createTime" width="180" />
         <el-table-column label="操作" align="center" width="200">
           <template #default="scope">
             <el-button link type="primary" @click="handleUpdate(scope.row)">修改</el-button>
@@ -51,16 +55,16 @@
         </el-table-column>
       </el-table>
 
-      <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" @pagination="getList" />
+      <pagination v-show="total > 0" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" :total="total" @pagination="getList" />
     </el-card>
 
     <!-- 价格规则配置对话框 -->
     <price-rule-config
       v-if="dialog.visible"
+      ref="priceRuleConfigRef"
       v-model="dialog.visible"
       :title="dialog.title"
       @submit="handlePriceRuleSubmit"
-      ref="priceRuleConfigRef"
     />
   </div>
 </template>
@@ -69,7 +73,14 @@
 import { ref, reactive, onMounted, nextTick } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import PriceRuleConfig from './components/PriceRuleConfig.vue';
-import { listPriceTemplate, getPriceTemplate, delPriceTemplate, addPriceTemplate, updatePriceTemplate, getPriceTemplateDetail } from '@/api/kpSystem/priceTemplate';
+import {
+  listPriceTemplate,
+  getPriceTemplate,
+  delPriceTemplate,
+  addPriceTemplate,
+  updatePriceTemplate,
+  getPriceTemplateDetail
+} from '@/api/kpSystem/priceTemplate';
 import { PriceTemplateVO, PriceTemplateForm, PriceTemplateQuery } from '@/api/kpSystem/priceTemplate/types';
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
@@ -97,10 +108,10 @@ const dialog = reactive<DialogOption>({
 const initFormData: PriceTemplateForm = {
   id: undefined,
   priceCode: undefined,
-  remark: undefined,
-}
+  remark: undefined
+};
 const data = reactive<PageData<PriceTemplateForm, PriceTemplateQuery>>({
-  form: {...initFormData},
+  form: { ...initFormData },
   queryParams: {
     pageNum: 1,
     pageSize: 10,
@@ -109,12 +120,8 @@ const data = reactive<PageData<PriceTemplateForm, PriceTemplateQuery>>({
     params: {}
   },
   rules: {
-    priceCode: [
-      { required: true, message: "计费编号不能为空", trigger: "blur" }
-    ],
-    remark: [
-      { required: false, message: "备注不能为空", trigger: "blur" }
-    ]
+    priceCode: [{ required: true, message: '计费编号不能为空', trigger: 'blur' }],
+    remark: [{ required: false, message: '备注不能为空', trigger: 'blur' }]
   }
 });
 
@@ -140,48 +147,52 @@ const getList = async () => {
 const cancel = () => {
   reset();
   dialog.visible = false;
-}
+};
 
 /** 表单重置 */
 const reset = () => {
-  form.value = {...initFormData};
-}
+  form.value = { ...initFormData };
+};
 
 /** 搜索按钮操作 */
 const handleQuery = () => {
   queryParams.pageNum = 1;
   getList();
-}
+};
 
 /** 重置按钮操作 */
 const resetQuery = () => {
   queryParams.priceCode = undefined;
   queryParams.remark = undefined;
   handleQuery();
-}
+};
 
 /** 多选框选中数据 */
 const handleSelectionChange = (selection: PriceTemplateVO[]) => {
-  ids.value = selection.map(item => item.id);
+  ids.value = selection.map((item) => item.id);
   single.value = selection.length != 1;
   multiple.value = !selection.length;
-}
+};
 
 /** 新增按钮操作 */
 const handleAdd = () => {
   dialog.visible = true;
-  dialog.title = "新增计费规则";
-}
+  dialog.title = '新增计费规则';
+};
 
 /** 修改按钮操作 */
-const handleUpdate = async (row: PriceTemplateVO) => {
+const handleUpdate = async (row: any) => {
   try {
-    const res = await getPriceTemplateDetail(row.priceCode);
+    const res = await getPriceTemplateDetail(row.id);
     dialog.visible = true;
-    dialog.title = "修改计费规则";
+    dialog.title = '修改计费规则';
+    // 等待 DOM 更新后操作子组件
     // 传递详情数据给子组件
     nextTick(() => {
-      priceRuleConfigRef.value?.setFormData(res.data);
+      if (priceRuleConfigRef.value) {
+        console.log(priceRuleConfigRef.value);
+        priceRuleConfigRef.value.setFormData(res.data);
+      }
     });
   } catch (error) {
     console.error('获取详情失败:', error);
@@ -191,6 +202,8 @@ const handleUpdate = async (row: PriceTemplateVO) => {
 // 提交处理
 const handlePriceRuleSubmit = async (formData: any) => {
   try {
+    formData.periods = JSON.stringify(formData.priceList);
+    delete formData.priceList;
     await addPriceTemplate(formData);
     ElMessage.success('保存成功');
     dialog.visible = false;
@@ -203,18 +216,22 @@ const handlePriceRuleSubmit = async (formData: any) => {
 /** 删除按钮操作 */
 const handleDelete = async (row?: PriceTemplateVO) => {
   const _ids = row?.id || ids.value;
-  await proxy?.$modal.confirm('是否确认删除站点价格模版编号为"' + _ids + '"的数据项？').finally(() => loading.value = false);
+  await proxy?.$modal.confirm('是否确认删除站点价格模版编号为"' + _ids + '"的数据项？').finally(() => (loading.value = false));
   await delPriceTemplate(_ids);
-  proxy?.$modal.msgSuccess("删除成功");
+  proxy?.$modal.msgSuccess('删除成功');
   await getList();
-}
+};
 
 /** 导出按钮操作 */
 const handleExport = () => {
-  proxy?.download('kpSystem/priceTemplate/export', {
-    ...queryParams
-  }, `priceTemplate_${new Date().getTime()}.xlsx`)
-}
+  proxy?.download(
+    'kpSystem/priceTemplate/export',
+    {
+      ...queryParams
+    },
+    `priceTemplate_${new Date().getTime()}.xlsx`
+  );
+};
 
 onMounted(() => {
   getList();

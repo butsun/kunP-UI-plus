@@ -61,3 +61,13 @@ export const delStation = (id: string | number | Array<string | number>) => {
     method: 'delete'
   });
 };
+
+/**
+ * 模糊查询价格模版管理列表
+ */
+export const priceTemplateLike = () => {
+  return request({
+    url: '/kpSystem/priceTemplate/like',
+    method: 'get'
+  });
+};

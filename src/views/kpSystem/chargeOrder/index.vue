@@ -93,7 +93,7 @@
                   <div>
                     <p m="t-0 b-2"><span>订单编号:</span> {{ scope.row.startChargeSeq }}</p>
                     <p m="t-0 b-2"><span>充电凭证:</span> {{ scope.row.voucherNo }}</p>
-                    <p m="t-0 b-2"><span>启动方式: </span> {{ scope.row.startType }}</p>
+                    <p m="t-0 b-2"><span>启动方式: </span> <dict-tag :options="kp_start_charge_seq_stat" :value="scope.row.startType" /></p>
                     <p m="t-0 b-2"><span>充电量: </span> {{ scope.row.totalPower }}</p>
                   </div>
                   <div class="flex">
@@ -119,8 +119,8 @@
                     <p m="t-0 b-2"><span>枪口编号: </span>{{ scope.row.connectorNo }}</p>
                   </div>
                   <div class="flex">
-                    <p m="t-0 b-2"><span>电流:</span> {{ scope.row.current }}</p>
-                    <p m="t-0 b-2"><span>电压:</span>{{ scope.row.voltage }}</p>
+                    <p m="t-0 b-2"><span>电流:</span> {{ scope.row.gun_current }}</p>
+                    <p m="t-0 b-2"><span>电压:</span>{{ scope.row.gun_voltage }}</p>
                     <p m="t-0 b-2"><span>soc:</span>{{ scope.row.soc }}</p>
                   </div>
                 </div>

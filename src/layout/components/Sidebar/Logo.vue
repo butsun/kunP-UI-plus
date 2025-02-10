@@ -34,7 +34,7 @@ defineProps({
   }
 });
 
-const title = ref('RuoYi-Vue-Plus');
+const title = ref('EVROC');
 const settingsStore = useSettingsStore();
 const sideTheme = computed(() => settingsStore.sideTheme);
 </script>
@@ -51,7 +51,7 @@ const sideTheme = computed(() => settingsStore.sideTheme);
 
 .sidebar-logo-container {
   position: relative;
-  width: 100%;
+  // width: 100%;
   height: 50px;
   line-height: 50px;
   background: #2b2f3a;
@@ -63,7 +63,7 @@ const sideTheme = computed(() => settingsStore.sideTheme);
     width: 100%;
 
     & .sidebar-logo {
-      width: 32px;
+      // width: 32px;
       height: 32px;
       vertical-align: middle;
       margin-right: 12px;

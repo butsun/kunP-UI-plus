@@ -266,6 +266,8 @@ const handleUpdate = async (row?: DiscountActivityVO) => {
   reset();
   const _id = row?.id || ids.value[0];
   const res = await getDiscountActivity(_id);
+  res.data.disElectricity = parseFloat((Number(res.data.disElectricity) * 100).toFixed(2));
+  res.data.disService = parseFloat((Number(res.data.disService) * 100).toFixed(2));
   Object.assign(form.value, res.data);
   dialog.visible = true;
   dialog.title = '修改充电优惠管理';

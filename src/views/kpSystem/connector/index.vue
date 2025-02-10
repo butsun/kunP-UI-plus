@@ -47,7 +47,7 @@
         <el-table-column label="额定功率" align="center" prop="power" />
         <el-table-column label="连网类型" align="center" prop="netType">
           <template #default="scope">
-            <dict-tag :options="kp_net_type" :value="scope.row.equipmentType" />
+            <dict-tag :options="kp_net_type" :value="scope.row.netType" />
           </template>
         </el-table-column>
         <el-table-column label="状态" align="center" prop="status">
@@ -70,23 +70,23 @@
     <!-- 添加或修改充电枪管理对话框 -->
     <el-dialog v-model="dialog.visible" :title="dialog.title" width="500px" append-to-body>
       <el-form ref="connectorFormRef" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="站点id" prop="stationId">
-          <el-input v-model="form.stationId" placeholder="请输入站点id" />
+        <el-form-item label="站点" prop="stationName">
+          <el-input v-model="form.stationName" placeholder="请输入站点id" disabled />
         </el-form-item>
-        <el-form-item label="运营商id" prop="operatorId">
-          <el-input v-model="form.operatorId" placeholder="请输入运营商id" />
+        <el-form-item label="运营商" prop="operatorName">
+          <el-input v-model="form.operatorName" placeholder="请输入运营商id" disabled />
         </el-form-item>
-        <el-form-item label="设备号" prop="equipmentId">
-          <el-input v-model="form.equipmentId" placeholder="请输入设备号" />
+        <el-form-item label="设备号" prop="equipmentNo">
+          <el-input v-model="form.equipmentNo" placeholder="请输入设备号" disabled />
         </el-form-item>
         <el-form-item label="枪号" prop="connectorId">
-          <el-input v-model="form.connectorId" placeholder="请输入枪号" />
+          <el-input v-model="form.connectorId" placeholder="请输入枪号" disabled />
         </el-form-item>
         <el-form-item label="枪名称" prop="connectorName">
-          <el-input v-model="form.connectorName" placeholder="请输入枪名称" />
+          <el-input v-model="form.connectorName" placeholder="请输入枪名称" disabled />
         </el-form-item>
         <el-form-item label="国标" prop="nationalStandard">
-          <el-input v-model="form.nationalStandard" placeholder="请输入国标" />
+          <el-input v-model="form.nationalStandard" placeholder="请输入国标" disabled />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -126,8 +126,10 @@ const dialog = reactive<DialogOption>({
 
 const initFormData: ConnectorForm = {
   stationId: undefined,
+  stationName: undefined,
+  operatorName: undefined,
+  equipmentNo: undefined,
   operatorId: undefined,
-  equipmentId: undefined,
   connectorId: undefined,
   connectorName: undefined,
   connectorType: undefined,
@@ -139,9 +141,7 @@ const data = reactive<PageData<ConnectorForm, ConnectorQuery>>({
   queryParams: {
     pageNum: 1,
     pageSize: 10,
-    stationId: undefined,
-    operatorId: undefined,
-    equipmentId: undefined,
+    equipmentNo: undefined,
     connectorId: undefined,
     params: {}
   },
@@ -208,11 +208,11 @@ const handleAdd = () => {
 /** 修改按钮操作 */
 const handleUpdate = async (row?: ConnectorVO) => {
   reset();
-  // const _id = row?.id || ids.value[0];
-  // const res = await getConnector(_id);
-  // Object.assign(form.value, res.data);
+  const _id = row?.id || ids.value[0];
+  const res = await getConnector(_id);
+  Object.assign(form.value, res.data);
   dialog.visible = true;
-  dialog.title = '修改充电枪管理';
+  dialog.title = '充电枪详情';
 };
 
 /** 提交按钮 */

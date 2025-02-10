@@ -1,9 +1,20 @@
 <template>
-  <el-dialog :title="title" v-model="visible" width="800px" append-to-body @close="handleClose">
+  <el-dialog v-model="visible" :title="title" width="800px" append-to-body @close="handleClose">
     <el-form ref="formRef" :model="form" :rules="rules" label-width="100px">
       <div class="price-rule-config">
         <div class="section-title">设置分时计费</div>
-        
+        <!-- 分时电费 -->
+        <div class="price-section">
+          <div class="sub-title">模版名称</div>
+          <div class="price-grid">
+            <div class="price-row">
+              <div class="price-item">
+                <el-input v-model="form.priceName" placeholder="请输入模版名称" style="width: 520px" />
+                <div v-if="priceErrors.peakElecPrice" class="error-message">{{ priceErrors.priceName }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
         <!-- 分时电费 -->
         <div class="price-section">
           <div class="sub-title">分时电费</div>
@@ -15,6 +26,22 @@
                   <span class="label">尖时电费</span>
                 </div>
                 <el-input
+                  v-model="form.topElecPrice"
+                  placeholder="0.0000"
+                  class="price-input"
+                  @input="handlePriceInput($event, 'topElecPrice')"
+                  @blur="handlePriceBlur($event, 'topElecPrice')"
+                >
+                  <template #append>元/kWh</template>
+                </el-input>
+                <div v-if="priceErrors.peakElecPrice" class="error-message">{{ priceErrors.peakElecPrice }}</div>
+              </div>
+              <div class="price-item">
+                <div class="price-label">
+                  <div class="color-block bg-peak"></div>
+                  <span class="label">峰时电费</span>
+                </div>
+                <el-input
                   v-model="form.peakElecPrice"
                   placeholder="0.0000"
                   class="price-input"
@@ -23,23 +50,7 @@
                 >
                   <template #append>元/kWh</template>
                 </el-input>
-                <div class="error-message" v-if="priceErrors.peakElecPrice">{{ priceErrors.peakElecPrice }}</div>
-              </div>
-              <div class="price-item">
-                <div class="price-label">
-                  <div class="color-block bg-high"></div>
-                  <span class="label">峰时电费</span>
-                </div>
-                <el-input
-                  v-model="form.highElecPrice"
-                  placeholder="0.0000"
-                  class="price-input"
-                  @input="handlePriceInput($event, 'highElecPrice')"
-                  @blur="handlePriceBlur($event, 'highElecPrice')"
-                >
-                  <template #append>元/kWh</template>
-                </el-input>
-                <div class="error-message" v-if="priceErrors.highElecPrice">{{ priceErrors.highElecPrice }}</div>
+                <div v-if="priceErrors.peakElecPrice" class="error-message">{{ priceErrors.peakElecPrice }}</div>
               </div>
             </div>
             <div class="price-row">
@@ -57,7 +68,7 @@
                 >
                   <template #append>元/kWh</template>
                 </el-input>
-                <div class="error-message" v-if="priceErrors.flatElecPrice">{{ priceErrors.flatElecPrice }}</div>
+                <div v-if="priceErrors.flatElecPrice" class="error-message">{{ priceErrors.flatElecPrice }}</div>
               </div>
               <div class="price-item">
                 <div class="price-label">
@@ -73,7 +84,7 @@
                 >
                   <template #append>元/kWh</template>
                 </el-input>
-                <div class="error-message" v-if="priceErrors.valleyElecPrice">{{ priceErrors.valleyElecPrice }}</div>
+                <div v-if="priceErrors.valleyElecPrice" class="error-message">{{ priceErrors.valleyElecPrice }}</div>
               </div>
             </div>
           </div>
@@ -90,31 +101,31 @@
                   <span class="label">尖时服务费</span>
                 </div>
                 <el-input
-                  v-model="form.peakServicePrice"
+                  v-model="form.topServPrice"
                   placeholder="0.0000"
                   class="price-input"
-                  @input="handlePriceInput($event, 'peakServicePrice')"
-                  @blur="handlePriceBlur($event, 'peakServicePrice')"
+                  @input="handlePriceInput($event, 'topServPrice')"
+                  @blur="handlePriceBlur($event, 'topServPrice')"
                 >
                   <template #append>元/kWh</template>
                 </el-input>
-                <div class="error-message" v-if="priceErrors.peakServicePrice">{{ priceErrors.peakServicePrice }}</div>
+                <div v-if="priceErrors.topServPrice" class="error-message">{{ priceErrors.topServPrice }}</div>
               </div>
               <div class="price-item">
                 <div class="price-label">
-                  <div class="color-block bg-high"></div>
+                  <div class="color-block bg-peak"></div>
                   <span class="label">峰时服务费</span>
                 </div>
                 <el-input
-                  v-model="form.highServicePrice"
+                  v-model="form.peakServPrice"
                   placeholder="0.0000"
                   class="price-input"
-                  @input="handlePriceInput($event, 'highServicePrice')"
-                  @blur="handlePriceBlur($event, 'highServicePrice')"
+                  @input="handlePriceInput($event, 'peakServPrice')"
+                  @blur="handlePriceBlur($event, 'peakServPrice')"
                 >
                   <template #append>元/kWh</template>
                 </el-input>
-                <div class="error-message" v-if="priceErrors.highServicePrice">{{ priceErrors.highServicePrice }}</div>
+                <div v-if="priceErrors.peakServPrice" class="error-message">{{ priceErrors.peakServPrice }}</div>
               </div>
             </div>
             <div class="price-row">
@@ -124,15 +135,15 @@
                   <span class="label">平时服务费</span>
                 </div>
                 <el-input
-                  v-model="form.flatServicePrice"
+                  v-model="form.flatServPrice"
                   placeholder="0.0000"
                   class="price-input"
-                  @input="handlePriceInput($event, 'flatServicePrice')"
-                  @blur="handlePriceBlur($event, 'flatServicePrice')"
+                  @input="handlePriceInput($event, 'flatServPrice')"
+                  @blur="handlePriceBlur($event, 'flatServPrice')"
                 >
                   <template #append>元/kWh</template>
                 </el-input>
-                <div class="error-message" v-if="priceErrors.flatServicePrice">{{ priceErrors.flatServicePrice }}</div>
+                <div v-if="priceErrors.flatServPrice" class="error-message">{{ priceErrors.flatServPrice }}</div>
               </div>
               <div class="price-item">
                 <div class="price-label">
@@ -140,15 +151,15 @@
                   <span class="label">谷时服务费</span>
                 </div>
                 <el-input
-                  v-model="form.valleyServicePrice"
+                  v-model="form.valleyServPrice"
                   placeholder="0.0000"
                   class="price-input"
-                  @input="handlePriceInput($event, 'valleyServicePrice')"
-                  @blur="handlePriceBlur($event, 'valleyServicePrice')"
+                  @input="handlePriceInput($event, 'valleyServPrice')"
+                  @blur="handlePriceBlur($event, 'valleyServPrice')"
                 >
                   <template #append>元/kWh</template>
                 </el-input>
-                <div class="error-message" v-if="priceErrors.valleyServicePrice">{{ priceErrors.valleyServicePrice }}</div>
+                <div v-if="priceErrors.valleyServPrice" class="error-message">{{ priceErrors.valleyServPrice }}</div>
               </div>
             </div>
           </div>
@@ -166,10 +177,10 @@
         <!-- 时段选择 -->
         <div class="time-section">
           <div class="period-buttons">
-            <div v-for="period in periods" :key="period.type">
+            <div v-for="(period, index) in periods" :key="period.type">
               <el-button
-                :class="['period-btn', period.class]"
-                @click="handlePeriodClick(period.type)"
+                :class="['period-btn', period.class, , period.isChecked ? period.classActive : '']"
+                @click="handlePeriodClick(period, index)"
               >
                 {{ period.label }}
               </el-button>
@@ -178,32 +189,24 @@
           </div>
 
           <div class="time-grid">
-            <div 
-              v-for="time in timeSlots" 
+            <div
+              v-for="time in timeSlots"
               :key="time"
               class="time-slot"
-              :class="[
-                { active: form.timeRules[time] },
-                form.timeRules[time] ? `bg-${form.timeRules[time]}` : ''
-              ]"
+              :class="[{ active: form.timeRules[time] }, form.timeRules[time] ? `bg-${form.timeRules[time]}` : '']"
               @click="toggleTimeSlot(time)"
             >
               {{ time }}
             </div>
           </div>
         </div>
-        
+
         <!-- 添加备注输入框 -->
         <div class="price-config">
           <div class="price-row">
             <div class="price-item">
               <div class="label">备注</div>
-              <el-input
-                v-model="form.remark"
-                type="textarea"
-                :rows="2"
-                placeholder="请输入备注信息"
-              />
+              <el-input v-model="form.remark" type="textarea" :rows="2" placeholder="请输入备注信息" />
             </div>
           </div>
         </div>
@@ -212,7 +215,7 @@
     <template #footer>
       <div class="dialog-footer">
         <el-button @click="handleClose">取 消</el-button>
-        <el-button type="primary" @click="handleSubmit" :disabled="hasErrors">确 定</el-button>
+        <el-button type="primary" :disabled="hasErrors" @click="handleSubmit">确 定</el-button>
       </div>
     </template>
   </el-dialog>
@@ -226,14 +229,14 @@ import { ElMessage } from 'element-plus';
 interface PriceItemVO {
   startTime: string;
   elecPrice: number;
-  servicePrice: number;
+  servPrice: number;
   priceType: number;
 }
 
 interface PriceTypeItemVO {
   priceType: number;
   elecPrice: number;
-  servicePrice: number;
+  servPrice: number;
 }
 
 interface PriceTemplateDetailVO {
@@ -250,30 +253,32 @@ interface PriceTemplateVO {
 }
 
 interface FormState {
+  priceName: string;
+  topElecPrice: string;
   peakElecPrice: string;
-  highElecPrice: string;
   flatElecPrice: string;
   valleyElecPrice: string;
-  peakServicePrice: string;
-  highServicePrice: string;
-  flatServicePrice: string;
-  valleyServicePrice: string;
+  topServPrice: string;
+  peakServPrice: string;
+  flatServPrice: string;
+  valleyServPrice: string;
   timeRules: Record<string, string>;
   remark: string;
 }
 
 // 表单数据
 const initForm = (): FormState => ({
+  topElecPrice: '',
   peakElecPrice: '',
-  highElecPrice: '',
   flatElecPrice: '',
   valleyElecPrice: '',
-  peakServicePrice: '',
-  highServicePrice: '',
-  flatServicePrice: '',
-  valleyServicePrice: '',
+  topServPrice: '',
+  peakServPrice: '',
+  flatServPrice: '',
+  valleyServPrice: '',
   timeRules: {},
-  remark: ''
+  remark: '',
+  priceName: ''
 });
 
 const form = ref<FormState>(initForm());
@@ -305,23 +310,24 @@ const priceErrors = reactive<Record<string, boolean>>({});
 
 // 表单校验规则
 const rules = {
+  priceName: [{ required: true, message: '请输入模版名称' }],
   peakElecPrice: [{ required: true, message: '请输入尖时段电价' }],
-  highElecPrice: [{ required: true, message: '请输入峰时段电价' }],
+  peakElecPrice: [{ required: true, message: '请输入峰时段电价' }],
   flatElecPrice: [{ required: true, message: '请输入平时段电价' }],
   valleyElecPrice: [{ required: true, message: '请输入谷时段电价' }],
-  peakServicePrice: [{ required: true, message: '请输入尖时段服务费' }],
-  highServicePrice: [{ required: true, message: '请输入峰时段服务费' }],
-  flatServicePrice: [{ required: true, message: '请输入平时段服务费' }],
-  valleyServicePrice: [{ required: true, message: '请输入谷时段服务费' }]
+  peakservPrice: [{ required: true, message: '请输入尖时段服务费' }],
+  peakservPrice: [{ required: true, message: '请输入峰时段服务费' }],
+  flatServPrice: [{ required: true, message: '请输入平时段服务费' }],
+  valleyServPrice: [{ required: true, message: '请输入谷时段服务费' }]
 };
 
 // 时段类型定义
-const periods = [
-  { type: 'peak', label: '尖时段', class: 'bg-peak' },
-  { type: 'high', label: '峰时段', class: 'bg-high' },
-  { type: 'flat', label: '平时段', class: 'bg-flat' },
-  { type: 'valley', label: '谷时段', class: 'bg-valley' }
-];
+const periods = ref([
+  { type: 'top', label: '尖时段', class: 'bg-top1', classActive: 'bg-top1-active', isChecked: false },
+  { type: 'peak', label: '峰时段', class: 'bg-peak1', classActive: 'bg-peak1-active', isChecked: false },
+  { type: 'flat', label: '平时段', class: 'bg-flat1', classActive: 'bg-flat1-active', isChecked: false },
+  { type: 'valley', label: '谷时段', class: 'bg-valley1', classActive: 'bg-valley1-active', isChecked: false }
+]);
 
 // 生成时间槽
 const generateTimeSlots = () => {
@@ -348,16 +354,15 @@ const convertTimeToSlot = (time: string): string => {
     console.warn('无效的时间格式:', time);
     return '';
   }
-  
+
   const hour = time.substring(0, 2);
   const minute = time.substring(2, 4);
-  
+
   // 验证小时和分钟的有效性
   const hourNum = parseInt(hour);
   const minuteNum = parseInt(minute);
-  
-  if (isNaN(hourNum) || hourNum < 0 || hourNum > 23 || 
-      isNaN(minuteNum) || minuteNum < 0 || minuteNum > 59) {
+
+  if (isNaN(hourNum) || hourNum < 0 || hourNum > 23 || isNaN(minuteNum) || minuteNum < 0 || minuteNum > 59) {
     console.warn('时间值超出范围:', { hour: hourNum, minute: minuteNum });
     return '';
   }
@@ -365,15 +370,15 @@ const convertTimeToSlot = (time: string): string => {
   // 计算结束时间
   let endHour: number;
   let endMinute: string;
-  
-  if (minute === "30") {
+
+  if (minute === '30') {
     // 如果当前是30分，则下一个时段是下一个小时的00分
     endHour = hourNum === 23 ? 0 : hourNum + 1;
-    endMinute = "00";
+    endMinute = '00';
   } else {
     // 如果当前是00分，则下一个时段是当前小时的30分
     endHour = hourNum;
-    endMinute = "30";
+    endMinute = '30';
   }
 
   // 构建时段字符串 (例如: "08:00-08:30" 或 "23:30-00:00")
@@ -384,18 +389,23 @@ const convertTimeToSlot = (time: string): string => {
 const getPriceTypeByValue = (value: number): string => {
   console.log('获取价格类型值:', value); // 添加日志
   switch (value) {
-    case 0: return 'peak';   // 尖时段
-    case 1: return 'high';   // 峰时段
-    case 2: return 'flat';   // 平时段
-    case 3: return 'valley'; // 谷时段
-    default: 
+    case 0:
+      return 'top'; // 尖时段
+    case 1:
+      return 'peak'; // 峰时段
+    case 2:
+      return 'flat'; // 平时段
+    case 3:
+      return 'valley'; // 谷时段
+    default:
       console.warn(`未知的价格类型: ${value}，使用默认值 'flat'`); // 添加警告日志
-      return 'flat';  // 默认平时段
+      return 'flat'; // 默认平时段
   }
 };
 
 /** 切换时段的价格类型 */
 const toggleTimeSlot = (time: string) => {
+  console.log('time>>>>>>', time);
   if (!currentPeriod.value) {
     console.warn('未选择时段类型');
     return;
@@ -410,9 +420,9 @@ const toggleTimeSlot = (time: string) => {
   }
 
   // 第二次点击，连接时段
-  const timeSlotIndex = timeSlots.value.findIndex(slot => slot === time);
-  const lastClickedIndex = timeSlots.value.findIndex(slot => slot === lastClickedTime.value);
-  
+  const timeSlotIndex = timeSlots.value.findIndex((slot) => slot === time);
+  const lastClickedIndex = timeSlots.value.findIndex((slot) => slot === lastClickedTime.value);
+
   if (timeSlotIndex === -1 || lastClickedIndex === -1) return;
 
   // 确定开始和结束索引
@@ -433,7 +443,9 @@ const toggleTimeSlot = (time: string) => {
 };
 
 /** 处理时段按钮点击 */
-const handlePeriodClick = (type: string) => {
+const handlePeriodClick = (data, index) => {
+  const { type } = data;
+  periods.value[index].isChecked = !periods.value[index].isChecked;
   // 如果点击的是当前选中的类型，则取消选择
   if (currentPeriod.value === type) {
     currentPeriod.value = '';
@@ -453,30 +465,58 @@ const resetTimeRules = () => {
   isSelecting.value = false;
   lastClickedTime.value = '';
 };
-
+// 创建一个映射关系
+const flagMapping = {
+  1: 'top',
+  2: 'peak',
+  3: 'flat',
+  4: 'valley'
+};
 /** 设置表单数据 */
-const setFormData = (data?: Partial<FormState>) => {
+const setFormData = (data?: any) => {
   // 重置表单为初始状态
   form.value = initForm();
-  
   if (!data) return;
-  
+  const _periods = JSON.parse(data.periods);
+  // 转换数据为目标格式
+  const result = _periods.reduce((acc, { start, end, flag }) => {
+    periods.value.forEach((period, index) => {
+      console.log(period.type === flagMapping[flag]);
+      if (period.type === flagMapping[flag]) {
+        period.isChecked = true;
+      }
+    });
+    console.log(periods);
+    const timeRange = `${start}-${end}`;
+    acc[timeRange] = flagMapping[flag] || 'unknown'; // 默认值为 "unknown"
+    return acc;
+  }, {});
+  // 查找 periods 中 isChecked 为 true 的项
+  console.log();
   // 如果有数据，则设置相应字段
-  if (data.timeRules) {
-    form.value.timeRules = { ...data.timeRules };
+  if (periods.value) {
+    form.value.timeRules = { ...result };
   }
-  
+  if (data.priceName) {
+    form.value.priceName = data.priceName;
+  }
   if (data.remark) {
     form.value.remark = data.remark;
   }
-  
+
   // 设置价格数据（如果存在）
   const priceFields = [
-    'peakElecPrice', 'highElecPrice', 'flatElecPrice', 'valleyElecPrice',
-    'peakServicePrice', 'highServicePrice', 'flatServicePrice', 'valleyServicePrice'
+    'topElecPrice',
+    'peakElecPrice',
+    'flatElecPrice',
+    'valleyElecPrice',
+    'topServPrice',
+    'peakServPrice',
+    'flatServPrice',
+    'valleyServPrice'
   ];
-  
-  priceFields.forEach(field => {
+
+  priceFields.forEach((field) => {
     const value = data[field as keyof FormState];
     if (value !== undefined && value !== null) {
       form.value[field as keyof FormState] = value;
@@ -495,51 +535,62 @@ const resetForm = () => {
 /** 提交表单 */
 const handleSubmit = async () => {
   try {
-
     // 3. 构建提交数据
-    const priceList: PriceItemVO[] = [];
-    const priceTypeList: PriceTypeItemVO[] = [];
+    const priceList: PriceTypeItemVO[] = [];
+    const priceTypeList: any = {};
 
     // 构建priceTypeList
     const typeConfigs = [
-      { type: 0, elecKey: 'peakElecPrice', serviceKey: 'peakServicePrice' },
-      { type: 1, elecKey: 'highElecPrice', serviceKey: 'highServicePrice' },
-      { type: 2, elecKey: 'flatElecPrice', serviceKey: 'flatServicePrice' },
-      { type: 3, elecKey: 'valleyElecPrice', serviceKey: 'valleyServicePrice' }
+      { type: 0, elecKey: 'topElecPrice', serviceKey: 'topservPrice' },
+      { type: 1, elecKey: 'peakElecPrice', serviceKey: 'peakservPrice' },
+      { type: 2, elecKey: 'flatElecPrice', serviceKey: 'flatServPrice' },
+      { type: 3, elecKey: 'valleyElecPrice', serviceKey: 'valleyServPrice' }
     ];
 
-    typeConfigs.forEach(config => {
-      priceTypeList.push({
-        priceType: config.type,
-        elecPrice: Number(form.value[config.elecKey as keyof FormState]),
-        servicePrice: Number(form.value[config.serviceKey as keyof FormState])
-      });
-    });
-
+    // typeConfigs.forEach((config) => {
+    //   priceTypeList.push({
+    //     priceType: config.type,
+    //     elecPrice: Number(form.value[config.elecKey as keyof FormState]),
+    //     servPrice: Number(form.value[config.serviceKey as keyof FormState])
+    //   });
+    // });
+    priceTypeList.priceName = form.value['priceName'];
+    priceTypeList.topElecPrice = Number(form.value['topElecPrice']);
+    priceTypeList.peakElecPrice = Number(form.value['peakElecPrice']);
+    priceTypeList.flatElecPrice = Number(form.value['flatElecPrice']);
+    priceTypeList.valleyElecPrice = Number(form.value['valleyElecPrice']);
+    priceTypeList.topServPrice = Number(form.value['topServPrice']);
+    priceTypeList.peakServPrice = Number(form.value['peakServPrice']);
+    priceTypeList.flatServPrice = Number(form.value['flatServPrice']);
+    priceTypeList.valleyServPrice = Number(form.value['valleyServPrice']);
+    console.log('priceTypeList>>>', priceTypeList);
     // 构建priceList
+    console.log('form.value.timeRules', form.value.timeRules);
     for (const [timeSlot, type] of Object.entries(form.value.timeRules)) {
-      const priceType = ['peak', 'high', 'flat', 'valley'].indexOf(type);
+      const priceType = ['top', 'peak', 'flat', 'valley'].indexOf(type);
       if (priceType === -1) continue;
 
       // 从时段字符串中提取前半段时间
-      const startTimeStr = timeSlot.split('-')[0];  
-      const [hour, minute] = startTimeStr.split(':');  
-      const startTime = `${hour}${minute}00`;  
-
+      const startTimeStr = timeSlot.split('-')[0];
+      const [hour, minute] = startTimeStr.split(':');
+      const startTime = `${hour}${minute}00`;
+      console.log('start>>>', timeSlot.split('-')[0]);
+      console.log('end>>>', timeSlot.split('-')[1]);
+      const _startTime = timeSlot.split('-')[0];
+      const _endTime = timeSlot.split('-')[1];
       priceList.push({
-        startTime: startTime,
-        elecPrice: Number(form.value[`${type}ElecPrice` as keyof FormState]),
-        servicePrice: Number(form.value[`${type}ServicePrice` as keyof FormState]),
-        priceType
+        start: _startTime,
+        end: _endTime,
+        flag: priceType
       });
     }
-    
+
     emit('submit', {
       priceList,
-      priceTypeList,
+      ...priceTypeList,
       remark: form.value.remark
     });
-    
+
     visible.value = false;
   } catch (error) {
     console.error('Form validation failed:', error);
@@ -557,7 +608,7 @@ const handlePriceInput = (value: string, field: keyof FormState) => {
 /** 处理价格失焦 */
 const handlePriceBlur = (value: string, field: keyof FormState) => {
   if (!value) return;
-  
+
   // 验证价格格式
   if (!validatePrice(value)) {
     ElMessage.warning(`请输入正确的价格格式，最多4位小数`);
@@ -583,6 +634,9 @@ const handleClose = () => {
 
 /** 是否有错误 */
 const hasErrors = computed(() => Object.keys(priceErrors).length > 0);
+
+// 暴露方法给父组件
+defineExpose({ setFormData });
 </script>
 
 <style lang="scss" scoped>
@@ -639,30 +693,78 @@ const hasErrors = computed(() => Object.keys(priceErrors).length > 0);
 }
 
 /* 修改时段颜色 */
+.bg-top {
+  background-color: #f56c6c !important;
+  border-color: #f56c6c !important;
+}
+.bg-top1 {
+  background-color: rgba(245, 108, 108, 0.5) !important;
+  border-color: #f56c6c !important;
+  color: gray;
+}
+.bg-top1-active {
+  background-color: rgba(245, 108, 108, 1) !important;
+  border-color: #f56c6c !important;
+  color: #fff;
+}
+.bg-top-active {
+  background-color: #f56c6c !important;
+  border-color: #f56c6c !important;
+}
 .bg-peak {
-  background-color: #F56C6C !important;
-  border-color: #F56C6C !important;
+  background-color: #e6a23c !important;
+  border-color: #e6a23c !important;
 }
-
-.bg-high {
-  background-color: #E6A23C !important;
-  border-color: #E6A23C !important;
+.bg-peak1 {
+  background-color: rgba(230, 162, 60, 0.5) !important;
+  border-color: #e6a23c !important;
+  color: gray;
 }
-
+.bg-peak1-active {
+  background-color: rgba(230, 162, 60, 1) !important;
+  border-color: #e6a23c !important;
+  color: #fff;
+}
 .bg-flat {
-  background-color: #67C23A !important;
-  border-color: #67C23A !important;
+  background-color: #67c23a !important;
+  border-color: #67c23a !important;
 }
-
+.bg-flat1 {
+  background-color: rgba(103, 194, 58, 0.5) !important;
+  border-color: #67c23a !important;
+  color: gray;
+}
+.bg-flat1-active {
+  background-color: rgba(103, 194, 58, 1) !important;
+  border-color: #67c23a !important;
+  color: #fff;
+}
 .bg-valley {
-  background-color: #409EFF !important;
-  border-color: #409EFF !important;
+  background-color: #409eff !important;
+  border-color: #409eff !important;
 }
-
-.time-slot.active.bg-peak { background-color: #F56C6C !important; }
-.time-slot.active.bg-high { background-color: #E6A23C !important; }
-.time-slot.active.bg-flat { background-color: #67C23A !important; }
-.time-slot.active.bg-valley { background-color: #409EFF !important; }
+.bg-valley1 {
+  background-color: rgba(64, 158, 255, 0.5) !important;
+  border-color: #409eff !important;
+  color: gray;
+}
+.bg-valley1-active {
+  background-color: rgba(64, 158, 255, 1) !important;
+  border-color: #409eff !important;
+  color: #fff;
+}
+.time-slot.active.bg-peak {
+  background-color: #f56c6c !important;
+}
+.time-slot.active.bg-peak {
+  background-color: #e6a23c !important;
+}
+.time-slot.active.bg-flat {
+  background-color: #67c23a !important;
+}
+.time-slot.active.bg-valley {
+  background-color: #409eff !important;
+}
 
 .price-input {
   width: 160px;

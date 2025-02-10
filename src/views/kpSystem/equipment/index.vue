@@ -78,7 +78,7 @@
         <!-- </el-table-column> -->
         <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
           <template #default="scope">
-            <el-tooltip content="修改" placement="top">
+            <el-tooltip content="详情" placement="top">
               <el-button v-hasPermi="['kpSystem:equipment:query']" link type="primary" icon="View" @click="handleView(scope.row)"></el-button>
             </el-tooltip>
             <el-tooltip content="修改" placement="top">
@@ -108,8 +108,8 @@
           </el-select>
         </el-form-item>
         <el-form-item label="枪数" prop="gunSum">
-          <!-- <el-input v-model="form.gunSum" placeholder="请输入枪数" /> -->
-          <el-input-number v-model="form.gunSum" :min="1" @change="handleChange" />
+          <el-input v-model="form.gunSum" placeholder="请输入枪数" disabled />
+          <!-- <el-input-number v-model="form.gunSum" :min="1" @change="handleChange" d/> -->
         </el-form-item>
         <el-form-item label="运营商" prop="operatorId">
           <!-- <el-input v-model="form.manufacturerName" placeholder="请输入设备生产商名称" /> -->

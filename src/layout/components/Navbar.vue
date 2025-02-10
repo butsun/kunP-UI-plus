@@ -29,7 +29,7 @@
           </div>
         </el-tooltip>
         <!-- 消息 -->
-        <el-tooltip :content="$t('navbar.message')" effect="dark" placement="bottom">
+        <!-- <el-tooltip :content="$t('navbar.message')" effect="dark" placement="bottom">
           <div>
             <el-popover placement="bottom" trigger="click" transition="el-zoom-in-top" :width="300" :persistent="false">
               <template #reference>
@@ -46,7 +46,6 @@
         <el-tooltip content="Github" effect="dark" placement="bottom">
           <ruo-yi-git id="ruoyi-git" class="right-menu-item hover-effect" />
         </el-tooltip>
-
         <el-tooltip :content="$t('navbar.document')" effect="dark" placement="bottom">
           <ruo-yi-doc id="ruoyi-doc" class="right-menu-item hover-effect" />
         </el-tooltip>
@@ -61,7 +60,7 @@
 
         <el-tooltip :content="$t('navbar.layoutSize')" effect="dark" placement="bottom">
           <size-select id="size-select" class="right-menu-item hover-effect" />
-        </el-tooltip>
+        </el-tooltip> -->
       </template>
       <div class="avatar-container">
         <el-dropdown class="right-menu-item hover-effect" trigger="click" @command="handleCommand">

@@ -73,7 +73,10 @@ export interface StationVO {
    * 更新时间
    */
   updateTime: string;
-
+  /**
+   * 价格模版
+   */
+  priceId: number;
 }
 
 export interface StationForm extends BaseEntity {
@@ -141,11 +144,14 @@ export interface StationForm extends BaseEntity {
    * 备注信息
    */
   remark?: string;
-
+  /**
+   * 价格模版
+   */
+  priceId?: number;
+  
 }
 
 export interface StationQuery extends PageQuery {
-
   /**
    * 运营商id
    */
@@ -176,11 +182,8 @@ export interface StationQuery extends PageQuery {
    */
   stationStatus?: number;
 
-    /**
-     * 日期范围参数
-     */
-    params?: any;
+  /**
+   * 日期范围参数
+   */
+  params?: any;
 }
-
-
-

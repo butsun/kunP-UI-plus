@@ -48,7 +48,6 @@ export interface ConnectorVO {
    * 更新时间
    */
   updateTime: string;
-
 }
 
 export interface ConnectorForm extends BaseEntity {
@@ -56,16 +55,17 @@ export interface ConnectorForm extends BaseEntity {
    * 站点id
    */
   stationId?: string | number;
-
+  stationName?: string;
   /**
    * 运营商id
    */
   operatorId?: string | number;
+  operatorName?: string;
 
   /**
    * 设备号
    */
-  equipmentId?: string | number;
+  equipmentNo?: string | number;
 
   /**
    * 枪号
@@ -91,16 +91,14 @@ export interface ConnectorForm extends BaseEntity {
    * 状态
    */
   status?: number;
-
 }
 
 export interface ConnectorQuery extends PageQuery {
-
   /**
    * 站点id
    */
   stationId?: string | number;
-
+  equipmentNo?: string | number;
   /**
    * 运营商id
    */
@@ -116,11 +114,8 @@ export interface ConnectorQuery extends PageQuery {
    */
   connectorId?: string | number;
 
-    /**
-     * 日期范围参数
-     */
-    params?: any;
+  /**
+   * 日期范围参数
+   */
+  params?: any;
 }
-
-
-

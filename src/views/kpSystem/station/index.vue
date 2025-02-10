@@ -30,38 +30,14 @@
                   />
                 </el-form-item>
               </el-col>
-              <el-col :span="6">
-                <el-form-item label="类型" prop="stationType">
-                  <el-select v-model="queryParams.stationType" placeholder="请选择类型" clearable style="width: 240px">
-                    <el-option v-for="dict in kp_station_type" :key="dict.value" :label="dict.label" :value="dict.value" />
-                  </el-select>
-                </el-form-item>
-              </el-col>
-              <el-col :span="6">
-                <el-form-item label="状态" prop="stationStatus">
-                  <el-select v-model="queryParams.stationStatus" placeholder="请选择状态" clearable style="width: 240px">
-                    <el-option v-for="dict in kp_station_status" :key="dict.value" :label="dict.label" :value="dict.value" />
-                  </el-select>
-                </el-form-item>
-              </el-col>
-            </el-row>
-            <el-row :gutter="24">
-              <el-col :span="12">
-                <RegionSelect
-                  v-model:province="queryParams.province"
-                  v-model:city="queryParams.city"
-                  label="地区"
-                  prop="region"
-                  @change="handleSearchRegionChange"
-                />
-              </el-col>
-              <el-col :span="12">
+              <el-col :span="8">
                 <div class="flex justify-end">
                   <el-button type="primary" icon="Search" style="margin-right: 8px" @click="handleQuery">搜索</el-button>
                   <el-button icon="Refresh" @click="resetQuery">重置</el-button>
                 </div>
               </el-col>
             </el-row>
+            <el-row :gutter="24"> </el-row>
           </el-form>
         </el-card>
       </div>
@@ -101,8 +77,6 @@
         <el-table-column label="省" align="center" prop="province" />
         <el-table-column label="市" align="center" prop="city" />
         <el-table-column label="详细地址" align="center" prop="address" />
-        <el-table-column label="站点电话" align="center" prop="stationTel" />
-        <el-table-column label="服务电话" align="center" prop="serviceTel" />
         <el-table-column label="类型" align="center" prop="stationType">
           <template #default="scope">
             <dict-tag :options="kp_station_type" :value="scope.row.stationType" />
@@ -113,22 +87,21 @@
             <dict-tag :options="kp_station_status" :value="scope.row.stationStatus" />
           </template>
         </el-table-column>
-        <el-table-column label="车位数量" align="center" prop="parkNums" />
-        <el-table-column label="营业时间" align="center" prop="busineHours" />
-        <el-table-column label="停车费" align="center" prop="parkFee" />
-        <el-table-column label="备注信息" align="center" prop="remark" />
         <el-table-column label="创建时间" align="center" prop="createTime" width="180">
           <template #default="scope">
-            <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d}') }}</span>
+            <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {hh}:{mm}:{ss}') }}</span>
           </template>
         </el-table-column>
         <el-table-column label="更新时间" align="center" prop="updateTime" width="180">
           <template #default="scope">
-            <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d}') }}</span>
+            <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d} {hh}:{mm}:{ss}') }}</span>
           </template>
         </el-table-column>
         <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
           <template #default="scope">
+            <el-tooltip content="修改" placement="top">
+              <el-button v-hasPermi="['kpSystem:station:view']" link type="primary" icon="View" @click="handleView(scope.row)"></el-button>
+            </el-tooltip>
             <el-tooltip content="修改" placement="top">
               <el-button v-hasPermi="['kpSystem:station:edit']" link type="primary" icon="Edit" @click="handleUpdate(scope.row)"></el-button>
             </el-tooltip>
@@ -142,47 +115,58 @@
       <pagination v-show="total > 0" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" :total="total" @pagination="getList" />
     </el-card>
     <!-- 添加或修改站点管理对话框 -->
-    <el-dialog v-model="dialog.visible" :title="dialog.title" width="500px" append-to-body>
+    <el-dialog v-model="dialog.visible" :title="dialog.title" width="600px" append-to-body>
       <el-form ref="stationFormRef" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="归属运营商" prop="operatorId">
-          <el-select v-model="form.operatorId" placeholder="请选择运营商" clearable filterable style="width: 240px">
+          <el-select v-model="form.operatorId" placeholder="请选择运营商" clearable filterable style="width: 240px" :disabled="isDetail">
             <el-option v-for="item in operatorList" :key="item.id" :label="item.operatorName" :value="item.id" />
           </el-select>
         </el-form-item>
         <el-form-item label="站点名称" prop="stationName">
-          <el-input v-model="form.stationName" placeholder="请输入站点名称" style="width: 240px" />
+          <el-input v-model="form.stationName" placeholder="请输入站点名称" style="width: 240px" :disabled="isDetail" />
         </el-form-item>
-        <region-select v-model:province="form.province" v-model:city="form.city" label="地区" prop="region" @change="handleFormRegionChange" />
+        <el-form-item v-if="isDetail" label="地区" prop="province">
+          <el-input v-model="form.province" placeholder="请输入站点名称" style="width: 180px" :disabled="isDetail" />
+          <el-input v-model="form.city" placeholder="请输入站点名称" style="width: 180px; margin-left: 12px" :disabled="isDetail" />
+        </el-form-item>
+        <region-select v-else v-model:province="form.province" v-model:city="form.city" label="地区" prop="region" @change="handleFormRegionChange" />
         <el-form-item label="详细地址" prop="address">
-          <el-input v-model="form.address" placeholder="请输入详细地址" style="width: 240px" />
+          <el-input v-model="form.address" placeholder="请输入详细地址" style="width: 240px" :disabled="isDetail" />
         </el-form-item>
         <el-form-item label="站点电话" prop="stationTel">
-          <el-input v-model="form.stationTel" placeholder="请输入站点电话" style="width: 240px" />
+          <el-input v-model="form.stationTel" placeholder="请输入站点电话" style="width: 240px" :disabled="isDetail" />
         </el-form-item>
         <el-form-item label="服务电话" prop="serviceTel">
-          <el-input v-model="form.serviceTel" placeholder="请输入服务电话" style="width: 240px" />
+          <el-input v-model="form.serviceTel" placeholder="请输入服务电话" style="width: 240px" :disabled="isDetail" />
         </el-form-item>
+        <el-form-item label="价格模版" prop="priceId">
+          <!-- <el-input v-model="form.serviceTel" placeholder="请输入价格模版" style="width: 240px" :disabled="isDetail" /> -->
+          <el-select v-model="form.priceId" placeholder="请输入价格模版" clearable filterable style="width: 240px" :disabled="isDetail">
+            <el-option v-for="item in priceTemplateList" :key="item.id" :label="item.priceName" :value="item.id" />
+          </el-select>
+        </el-form-item>
+
         <el-form-item label="类型" prop="stationType">
-          <el-select v-model="form.stationType" placeholder="请选择类型" style="width: 240px">
+          <el-select v-model="form.stationType" placeholder="请选择类型" style="width: 240px" :disabled="isDetail">
             <el-option v-for="dict in kp_station_type" :key="dict.value" :label="dict.label" :value="parseInt(dict.value)"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="状态" prop="stationStatus">
-          <el-radio-group v-model="form.stationStatus">
+          <el-radio-group v-model="form.stationStatus" :disabled="isDetail">
             <el-radio v-for="dict in kp_station_status" :key="dict.value" :value="parseInt(dict.value)">{{ dict.label }}</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="车位数量" prop="parkNums">
-          <el-input v-model="form.parkNums" placeholder="请输入车位数量" style="width: 240px" />
+          <el-input v-model="form.parkNums" placeholder="请输入车位数量" style="width: 240px" :disabled="isDetail" />
         </el-form-item>
         <el-form-item label="营业时间" prop="busineHours">
-          <el-input v-model="form.busineHours" placeholder="请输入营业时间" style="width: 240px" />
+          <el-input v-model="form.busineHours" placeholder="请输入营业时间" style="width: 240px" :disabled="isDetail" />
         </el-form-item>
         <el-form-item label="停车费" prop="parkFee">
-          <el-input v-model="form.parkFee" placeholder="请输入停车费" style="width: 240px" />
+          <el-input v-model="form.parkFee" placeholder="请输入停车费" style="width: 240px" :disabled="isDetail" />
         </el-form-item>
         <el-form-item label="备注信息" prop="remark">
-          <el-input v-model="form.remark" placeholder="请输入备注信息" style="width: 240px" />
+          <el-input v-model="form.remark" placeholder="请输入备注信息" style="width: 240px" :disabled="isDetail" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -196,8 +180,9 @@
 </template>
 
 <script setup name="Station" lang="ts">
-import { listStation, getStation, delStation, addStation, updateStation } from '@/api/kpSystem/station';
+import { listStation, getStation, delStation, addStation, updateStation, priceTemplateLike } from '@/api/kpSystem/station';
 import { StationVO, StationQuery, StationForm } from '@/api/kpSystem/station/types';
+// import { StationVO, StationQuery, StationForm } from '@/api/kpSystem/station/types';
 import { listOperator } from '@/api/kpSystem/operator';
 import type { OperatorVO } from '@/api/kpSystem/operator/types';
 import { ref, onMounted } from 'vue';
@@ -236,7 +221,8 @@ const initFormData: StationForm = {
   parkNums: undefined,
   busineHours: undefined,
   parkFee: undefined,
-  remark: undefined
+  remark: undefined,
+  priceId: undefined
 };
 const data = reactive<PageData<StationForm, StationQuery>>({
   form: { ...initFormData },
@@ -288,6 +274,7 @@ const getList = async () => {
 const cancel = () => {
   reset();
   dialog.visible = false;
+  isDetail.value = false;
 };
 
 /** 表单重置 */
@@ -348,7 +335,17 @@ const handleUpdate = async (row?: StationVO) => {
   dialog.visible = true;
   dialog.title = '修改站点管理';
 };
-
+/** 详情操作 */
+const isDetail = ref(false);
+const handleView = async (row?: StationVO) => {
+  reset();
+  const _id = row?.id || ids.value[0];
+  const res = await getStation(_id);
+  Object.assign(form.value, res.data);
+  dialog.visible = true;
+  dialog.title = '站点详情';
+  isDetail.value = true;
+};
 /** 提交按钮 */
 const submitForm = () => {
   stationFormRef.value?.validate(async (valid: boolean) => {
@@ -398,10 +395,22 @@ const handleFormRegionChange = (region: { province: string; city: string }) => {
   form.value.province = region.province;
   form.value.city = region.city;
 };
+const priceTemplateList = ref([]);
 
+const getPriceTemplateList = async () => {
+  try {
+    const res = await priceTemplateLike();
+    if (res.code === 200) {
+      priceTemplateList.value = res.rows || [];
+    }
+  } catch (error) {
+    console.error('获取价格模版失败:', error);
+  }
+};
 onMounted(() => {
   getList();
   getOperatorList(); // 获取运营商列表
+  getPriceTemplateList();
 });
 </script>
 
