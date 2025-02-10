@@ -635,26 +635,32 @@ const handlePriceInput = (value: string, field: keyof FormState) => {
     form.value[field] = value;
   }
 };
+/** 格式化价格，确保最多四位小数，不足补0 */
+const formatPrice = (value: string | number): string => {
+  console.log(value);
+  if (!value) return '0.0000';
 
+  let num = parseFloat(value.toString());
+
+  if (isNaN(num)) return '0.0000';
+
+  return num.toFixed(4); // 始终保留四位小数
+};
 /** 处理价格失焦 */
 const handlePriceBlur = (value: string, field: keyof FormState) => {
   if (!value) return;
 
   // 验证价格格式
-  if (!validatePrice(value)) {
-    ElMessage.warning(`请输入正确的价格格式，最多4位小数`);
-    return;
-  }
-
-  // 格式化为4位小数
-  if (typeof form.value[field] === 'string') {
-    form.value[field] = Number(value).toFixed(4);
-  }
+  // if (!validatePrice(value)) {
+  //   ElMessage.warning(`请输入正确的价格格式，最多4位小数`);
+  //   return;
+  // }
+  form.value[field] = formatPrice(form.value[field]);
 };
 
 /** 验证价格格式 */
 const validatePrice = (value: string): boolean => {
-  return /^\d+\.?\d{0,4}$/.test(value);
+  return /^\d+(\.\d{0,4})?$/.test(value);
 };
 
 /** 取消 */
@@ -771,17 +777,17 @@ defineExpose({ setFormData });
   color: #fff;
 }
 .bg-valley {
-  background-color: #409eff !important;
-  border-color: #409eff !important;
+  background-color: #fd4350 !important;
+  border-color: #fd4350 !important;
 }
 .bg-valley1 {
   background-color: rgba(64, 158, 255, 0.5) !important;
-  border-color: #409eff !important;
+  border-color: #fd4350 !important;
   color: gray;
 }
 .bg-valley1-active {
   background-color: rgba(64, 158, 255, 1) !important;
-  border-color: #409eff !important;
+  border-color: #fd4350 !important;
   color: #fff;
 }
 .time-slot.active.bg-peak {
@@ -794,7 +800,7 @@ defineExpose({ setFormData });
   background-color: #67c23a !important;
 }
 .time-slot.active.bg-valley {
-  background-color: #409eff !important;
+  background-color: #fd4350 !important;
 }
 
 .price-input {

@@ -265,7 +265,6 @@ const handleExport = () => {
   );
 };
 const operatorList = ref([]);
-const accountList = ref([]);
 const getOperatorList = async () => {
   try {
     const res = await listOperator();
@@ -276,6 +275,7 @@ const getOperatorList = async () => {
     console.error('获取运营商列表失败:', error);
   }
 };
+const accountList = ref([]);
 const getAccountList = async () => {
   try {
     const res = await listChargeAccount();

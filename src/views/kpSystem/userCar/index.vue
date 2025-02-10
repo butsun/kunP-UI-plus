@@ -73,7 +73,9 @@
     <el-dialog v-model="dialog.visible" :title="dialog.title" width="500px" append-to-body>
       <el-form ref="userCarFormRef" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="归属账户" prop="accountId">
-          <el-input v-model="form.accountId" placeholder="请输入归属账户" />
+          <el-select v-model="form.accountId" placeholder="请选择运营商" clearable filterable @change="handleQuery">
+            <el-option v-for="item in accountList" :key="item.id" :label="item.nickName" :value="item.id" />
+          </el-select>
         </el-form-item>
         <el-form-item label="车牌号" prop="plateNo">
           <el-input v-model="form.plateNo" placeholder="请输入车牌号" />
@@ -119,6 +121,7 @@
 import { listUserCar, getUserCar, delUserCar, addUserCar, updateUserCar } from '@/api/kpSystem/userCar';
 import { UserCarVO, UserCarQuery, UserCarForm } from '@/api/kpSystem/userCar/types';
 import { listChargeVoucher } from '@/api/kpSystem/chargeVoucher';
+import { listChargeAccount } from '@/api/kpSystem/chargeAccount';
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 
@@ -273,8 +276,20 @@ const getVinList = async () => {
     console.error('获取运营商列表失败:', error);
   }
 };
+const accountList = ref([]);
+const getAccountList = async () => {
+  try {
+    const res = await listChargeAccount();
+    if (res.code === 200) {
+      accountList.value = res.rows || [];
+    }
+  } catch (error) {
+    console.error('获取运营商列表失败:', error);
+  }
+};
 onMounted(() => {
   getList();
   getVinList();
+  getAccountList();
 });
 </script>

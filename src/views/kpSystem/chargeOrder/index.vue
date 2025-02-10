@@ -85,15 +85,17 @@
             <div class="order-detail">
               <!-- 订单详情 -->
               <div class="header">
-                <div class="detail-title">订单详情</div>
+                <div class="detail-title"><span class="gap"></span>订单详情</div>
               </div>
               <div class="detail-container">
                 <div class="order-status">
                   <dict-tag :options="kp_start_charge_seq_stat" :value="scope.row.startChargeSeqStat" />
                 </div>
                 <div m="4">
-                  <div>
+                  <div class="flex">
                     <p m="t-0 b-2"><span>订单编号:</span> {{ scope.row.startChargeSeq }}</p>
+                  </div>
+                  <div class="flex">
                     <p m="t-0 b-2"><span>充电凭证:</span> {{ scope.row.voucherNo }}</p>
                     <p m="t-0 b-2" style="display: flex">
                       <span style="margin-right: 8px">启动方式: </span> <dict-tag :options="kp_start_charge_seq_stat" :value="scope.row.startType" />
@@ -103,6 +105,7 @@
                   <div class="flex">
                     <p m="t-0 b-2"><span>开始充电时间: </span> {{ scope.row.startTime }}</p>
                     <p m="t-0 b-2"><span>结束充电:</span> {{ scope.row.endTime }}</p>
+                    <p m="t-0 b-2"></p>
                   </div>
                   <p m="t-0 b-2"><span>充电结束原因:</span> {{ scope.row.stopReason }}</p>
                 </div>
@@ -110,7 +113,7 @@
 
               <!-- 设备信息 -->
               <div class="header">
-                <div class="detail-title">设备信息</div>
+                <div class="detail-title"><span class="gap"></span>设备信息</div>
               </div>
               <div class="detail-container">
                 <div m="4">
@@ -120,33 +123,37 @@
                     <p m="t-0 b-2"><span>运营商:</span> {{ scope.row.operatorName }}</p>
                   </div>
                   <div class="flex">
-                    <p m="t-0 b-2"><span>枪口编号: </span>{{ scope.row.connectorNo }}</p>
+                    <p m="t-0 b-2"><span>电流:</span> {{ scope.row.gunCurrent }}</p>
+                    <p m="t-0 b-2"><span>电压:</span>{{ scope.row.gunVoltage }}</p>
+                    <p m="t-0 b-2"><span>soc:</span>{{ scope.row.soc }}</p>
                   </div>
                   <div class="flex">
-                    <p m="t-0 b-2"><span>电流:</span> {{ scope.row.gun_current }}</p>
-                    <p m="t-0 b-2"><span>电压:</span>{{ scope.row.gun_voltage }}</p>
-                    <p m="t-0 b-2"><span>soc:</span>{{ scope.row.soc }}</p>
+                    <p m="t-0 b-2"><span>枪口编号: </span>{{ scope.row.connectorNo }}</p>
                   </div>
                 </div>
               </div>
 
               <!-- 费用信息 -->
               <div class="header">
-                <div class="detail-title">费用信息</div>
+                <div class="detail-title"><span class="gap"></span>费用信息</div>
               </div>
               <div class="detail-container">
                 <div m="4">
                   <div class="flex">
                     <p m="t-0 b-2"><span>电费（元）:</span> {{ scope.row.elecMoney }}</p>
                     <p m="t-0 b-2"><span>优惠后电费（元）:</span> {{ scope.row.finalElecMoney }}</p>
+                    <p m="t-0 b-2"></p>
                   </div>
                   <div class="flex">
                     <p m="t-0 b-2"><span>服务费（元）:</span> {{ scope.row.serviceMoney }}</p>
+
                     <p m="t-0 b-2"><span>优惠后服务费（元）:</span> {{ scope.row.finalServiceMoney }}</p>
+                    <p m="t-0 b-2"></p>
                   </div>
                   <div class="flex">
                     <p m="t-0 b-2"></p>
                     <p m="t-0 b-2" class="money"><span>总金额（元）:</span> {{ scope.row.finalTotalMoney }}</p>
+                    <p m="t-0 b-2"></p>
                   </div>
                 </div>
               </div>
@@ -379,25 +386,44 @@ const handleExpandChange = async (row, expandedRows) => {
   padding: 24px;
   // max-width: 800px;
   margin: 0 auto;
+  background-color: #fafafa;
+}
+.gap {
+  display: inline-block;
+  width: 4px;
+  height: 20px;
+  border-radius: 12px;
+  background-color: var(--el-color-primary);
+  margin-right: 6px;
+}
+.detail-title {
+  font-weight: bolder;
+  font-size: 18px !important;
+  display: flex;
+  align-items: center;
 }
 .detail-container {
   position: relative;
   p {
-    width: 350px;
-  }
-  .detail-title {
+    // width: 350px;
+    flex: 1;
     font-weight: bolder;
-    font-size: 40px !important;
+    font-size: 14px;
+    color: #333;
+    span {
+      font-size: 13px;
+      color: #999;
+      margin-right: 8px;
+    }
   }
-  .b-2 {
-    font-weight: bolder;
-  }
+
   span {
     color: gray;
   }
   .order-status {
     position: absolute;
     right: 10px;
+    top: -40px;
     z-index: 1;
     font-size: 12px;
     color: #fff;

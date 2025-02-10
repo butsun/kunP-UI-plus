@@ -93,13 +93,12 @@
           <el-input v-model="form.activityName" placeholder="请输入活动名称" />
         </el-form-item>
         <el-form-item label="运营商" prop="operatorId">
-          <!-- <el-input v-model="form.operatorId" placeholder="请输入运营商ID" /> -->
-          <el-select v-model="form.operatorId" filterable placeholder="请选择供应商">
+          <el-select v-model="form.operatorId" filterable placeholder="请选择运营商" @change="handleOperatorChange">
             <el-option v-for="item in operatorOptions" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
         <el-form-item label="站点" prop="stationId">
-          <el-select v-model="form.stationId" filterable placeholder="请输入选择站点">
+          <el-select v-model="form.stationId" filterable placeholder="请选择站点" @focus="handleStationChange">
             <el-option v-for="item in stationOptions" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
@@ -152,6 +151,7 @@ import {
 } from '@/api/kpSystem/discountActivity';
 import { stationLike, operatorLike } from '@/api/common';
 import { DiscountActivityVO, DiscountActivityQuery, DiscountActivityForm } from '@/api/kpSystem/discountActivity/types';
+import { ElMessage } from 'element-plus';
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 const { kp_activity_type, kp_disable_flag } = toRefs<any>(proxy?.useDict('kp_activity_type', 'kp_disable_flag'));
@@ -314,13 +314,36 @@ const handleExport = () => {
 /** 模糊查询站点列表 */
 const stationLists = async () => {
   loading.value = true;
-  const res = await stationLike();
+  const res = await stationLike({ operatorId: form.value.operatorId });
   stationOptions.value = res.rows.map((item: any) => ({
     label: item.stationName,
     value: item.id,
     name: item.stationName
   }));
   loading.value = false;
+};
+// 监听 select 变化并调用接口
+const handleOperatorChange = async (newValue) => {
+  if (newValue) {
+    try {
+      stationLists();
+    } catch (error) {
+      console.error('接口请求失败：', error);
+    }
+  }
+};
+//
+const handleStationChange = async (newValue) => {
+  if (newValue) {
+    try {
+      console.log(form.value.operatorId);
+      if (!form.value.operatorId) {
+        ElMessage.warning(`请先选择供应商`);
+      }
+    } catch (error) {
+      console.error('接口请求失败：', error);
+    }
+  }
 };
 /** 模糊查询供应商列表 */
 const operatorLists = async () => {
@@ -335,7 +358,7 @@ const operatorLists = async () => {
 };
 onMounted(() => {
   getList();
-  stationLists();
+  // stationLists();
   operatorLists();
 });
 </script>

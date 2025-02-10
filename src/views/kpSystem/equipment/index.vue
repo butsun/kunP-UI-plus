@@ -102,20 +102,19 @@
             <el-option v-for="item in equipmentoptions" :key="item.value" :label="item.label" :value="item.value" />
           </el-select> -->
         </el-form-item>
+        <el-form-item label="运营商" prop="operatorId">
+          <el-select v-model="form.operatorId" filterable placeholder="请选择运营商" @change="handleOperatorChange">
+            <el-option v-for="item in operatorOptions" :key="item.value" :label="item.label" :value="item.value" />
+          </el-select>
+        </el-form-item>
         <el-form-item label="站点" prop="stationId">
-          <el-select v-model="form.stationId" filterable placeholder="请选择站点">
+          <el-select v-model="form.stationId" filterable placeholder="请选择站点" @focus="handleStationChange">
             <el-option v-for="item in stationOptions" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
         <el-form-item label="枪数" prop="gunSum">
           <el-input v-model="form.gunSum" placeholder="请输入枪数" disabled />
           <!-- <el-input-number v-model="form.gunSum" :min="1" @change="handleChange" d/> -->
-        </el-form-item>
-        <el-form-item label="运营商" prop="operatorId">
-          <!-- <el-input v-model="form.manufacturerName" placeholder="请输入设备生产商名称" /> -->
-          <el-select v-model="form.operatorId" filterable placeholder="请选择运营商">
-            <el-option v-for="item in operatorOptions" :key="item.value" :label="item.label" :value="item.value" />
-          </el-select>
         </el-form-item>
         <el-form-item label="设备类型" prop="equipmentType">
           <el-select v-model="form.equipmentType" placeholder="请选择设备类型">
@@ -163,6 +162,7 @@
 import { listEquipment, getEquipment, delEquipment, addEquipment, updateEquipment } from '@/api/kpSystem/equipment';
 import { equipmentLike, stationLike, operatorLike } from '@/api/common';
 import { EquipmentVO, EquipmentQuery, EquipmentForm } from '@/api/kpSystem/equipment/types';
+import { ElMessage } from 'element-plus';
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 const { kp_net_type, kp_equipment_type, kp_is_working } = toRefs<any>(proxy?.useDict('kp_net_type', 'kp_equipment_type', 'kp_is_working'));
@@ -253,13 +253,36 @@ const equipmentLists = async () => {
 /** 模糊查询站点列表 */
 const stationLists = async () => {
   loading.value = true;
-  const res = await stationLike();
+  const res = await stationLike({ operatorId: form.value.operatorId });
   stationOptions.value = res.rows.map((item: any) => ({
     label: item.stationName,
     value: item.id,
     name: item.stationName
   }));
   loading.value = false;
+};
+// 监听 select 变化并调用接口
+const handleOperatorChange = async (newValue) => {
+  if (newValue) {
+    try {
+      stationLists();
+    } catch (error) {
+      console.error('接口请求失败：', error);
+    }
+  }
+};
+//
+const handleStationChange = async (newValue) => {
+  if (newValue) {
+    try {
+      console.log(form.value.operatorId);
+      if (!form.value.operatorId) {
+        ElMessage.warning(`请先选择供应商`);
+      }
+    } catch (error) {
+      console.error('接口请求失败：', error);
+    }
+  }
 };
 /** 模糊查询供应商列表 */
 const operatorLists = async () => {
@@ -366,7 +389,7 @@ const handleView = (row: any) => {
 onMounted(() => {
   getList();
   equipmentLists();
-  stationLists();
+  // stationLists();
   operatorLists();
 });
 </script>

@@ -13,10 +13,11 @@ export const equipmentLike = () => {
  * 模糊查询站点
  * @param 无
  */
-export const stationLike = () => {
+export const stationLike = (data) => {
   return request({
     url: '/kpSystem/station/like',
-    method: 'get'
+    method: 'get',
+    params: data
   });
 };
 /**
