@@ -79,13 +79,27 @@
           <el-input v-model="form.plateNo" placeholder="请输入车牌号" />
         </el-form-item>
         <el-form-item label="vin码" prop="carVin">
-          <el-input v-model="form.carVin" placeholder="请输入vin码" />
+          <!-- <el-input v-model="form.carVin" placeholder="请输入vin码" /> -->
+          <el-select v-model="form.carVin" placeholder="请选择vin码" clearable filterable @change="handleQuery">
+            <el-option v-for="item in vinList" :key="item.id" :label="item.voucherNumber" :value="item.id" />
+          </el-select>
         </el-form-item>
         <el-form-item label="品牌" prop="carModel">
           <el-input v-model="form.carModel" placeholder="请输入品牌" />
         </el-form-item>
-        <el-form-item label="使用性质: 默认 0:运营;、1:非运营;" prop="useCharacter">
-          <el-input v-model="form.useCharacter" placeholder="请输入使用性质: 默认 0:运营;、1:非运营;" />
+        <el-form-item label="类型" prop="useCharacter">
+          <!-- <el-input v-model="form.useCharacter" placeholder="请输入使用性质: 默认 0:运营;、1:非运营;" /> -->
+          <el-select v-model="form.carVin" placeholder="请选择类型" clearable filterable @change="handleQuery">
+            <el-option
+              v-for="item in [
+                { value: 0, label: '运营' },
+                { value: 1, label: '非运营' }
+              ]"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
         </el-form-item>
         <el-form-item label="备注" prop="remark">
           <el-input v-model="form.remark" placeholder="请输入备注" />
@@ -104,6 +118,7 @@
 <script setup name="UserCar" lang="ts">
 import { listUserCar, getUserCar, delUserCar, addUserCar, updateUserCar } from '@/api/kpSystem/userCar';
 import { UserCarVO, UserCarQuery, UserCarForm } from '@/api/kpSystem/userCar/types';
+import { listChargeVoucher } from '@/api/kpSystem/chargeVoucher';
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 
@@ -246,8 +261,20 @@ const handleExport = () => {
     `userCar_${new Date().getTime()}.xlsx`
   );
 };
+const vinList = ref<OperatorVO[]>([]);
 
+const getVinList = async () => {
+  try {
+    const res = await listChargeVoucher();
+    if (res.code === 200) {
+      vinList.value = res.rows || [];
+    }
+  } catch (error) {
+    console.error('获取运营商列表失败:', error);
+  }
+};
 onMounted(() => {
   getList();
+  getVinList();
 });
 </script>

@@ -62,7 +62,9 @@
         <el-table-column label="订单号" align="center" prop="startChargeSeq" width="80" :cell-style="{ whiteSpace: 'nowrap' }" />
         <el-table-column label="站点" align="center" prop="stationName" />
         <el-table-column label="运营商" align="center" prop="operatorName" />
-        <el-table-column label="充电金额" align="center" prop="finalTotalMoney" />
+        <el-table-column label="充电金额" align="center" prop="totalMoney" />
+        <el-table-column label="优惠金额" align="center" prop="activityMoney" />
+        <el-table-column label="最终金额" align="center" prop="finalTotalMoney" />
         <el-table-column label="开始充电时间" align="center" prop="startTime" width="180">
           <template #default="scope">
             <span>{{ parseTime(scope.row.startTime, '{y}-{m}-{d}') }}</span>
@@ -83,7 +85,7 @@
             <div class="order-detail">
               <!-- 订单详情 -->
               <div class="header">
-                <div class="detail-title" :style="`font-size: var(--el-font-size-large)`">订单详情</div>
+                <div class="detail-title">订单详情</div>
               </div>
               <div class="detail-container">
                 <div class="order-status">
@@ -93,7 +95,9 @@
                   <div>
                     <p m="t-0 b-2"><span>订单编号:</span> {{ scope.row.startChargeSeq }}</p>
                     <p m="t-0 b-2"><span>充电凭证:</span> {{ scope.row.voucherNo }}</p>
-                    <p m="t-0 b-2"><span>启动方式: </span> <dict-tag :options="kp_start_charge_seq_stat" :value="scope.row.startType" /></p>
+                    <p m="t-0 b-2" style="display: flex">
+                      <span style="margin-right: 8px">启动方式: </span> <dict-tag :options="kp_start_charge_seq_stat" :value="scope.row.startType" />
+                    </p>
                     <p m="t-0 b-2"><span>充电量: </span> {{ scope.row.totalPower }}</p>
                   </div>
                   <div class="flex">
@@ -106,7 +110,7 @@
 
               <!-- 设备信息 -->
               <div class="header">
-                <div class="detail-title" :style="`font-size: var(--el-font-size-large)`">设备信息</div>
+                <div class="detail-title">设备信息</div>
               </div>
               <div class="detail-container">
                 <div m="4">
@@ -128,7 +132,7 @@
 
               <!-- 费用信息 -->
               <div class="header">
-                <div class="detail-title" :style="`font-size: var(--el-font-size-large)`">费用信息</div>
+                <div class="detail-title">费用信息</div>
               </div>
               <div class="detail-container">
                 <div m="4">
@@ -371,8 +375,23 @@ const handleExpandChange = async (row, expandedRows) => {
 };
 </script>
 <style lang="scss" scoped>
+.order-detail {
+  padding: 24px;
+  // max-width: 800px;
+  margin: 0 auto;
+}
 .detail-container {
   position: relative;
+  p {
+    width: 350px;
+  }
+  .detail-title {
+    font-weight: bolder;
+    font-size: 40px !important;
+  }
+  .b-2 {
+    font-weight: bolder;
+  }
   span {
     color: gray;
   }
