@@ -45,16 +45,50 @@
       <el-table v-loading="loading" :data="userCarList" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" align="center" />
         <!-- <el-table-column v-if="true" label="车辆ID" align="center" prop="id" /> -->
-        <el-table-column label="归属账户" align="center" prop="accountId" />
-        <el-table-column label="车牌号" align="center" prop="plateNo" />
-        <el-table-column label="vin码" align="center" prop="carVin" />
+        <el-table-column label="归属账户" align="center" prop="accountName" min-width="120" show-overflow-tooltip />
+        <el-table-column label="车牌号" align="center" prop="plateNo" min-width="120" show-overflow-tooltip>
+          <template #default="{ row }">
+            <a
+              style="
+                display: flex;
+                align-items: center;
+                white-space: nowrap;
+                width: 100px;
+                text-decoration: underline;
+                cursor: pointer;
+                color: var(--el-color-primary);
+              "
+              @click="copyText(row.plateNo)"
+            >
+              {{ row.plateNo }}
+            </a>
+          </template>
+        </el-table-column>
+        <el-table-column label="vin码" align="center" prop="carVin" min-width="120" show-overflow-tooltip>
+          <template #default="{ row }">
+            <a
+              style="
+                display: flex;
+                align-items: center;
+                white-space: nowrap;
+                width: 100px;
+                text-decoration: underline;
+                cursor: pointer;
+                color: var(--el-color-primary);
+              "
+              @click="copyText(row.carVin)"
+            >
+              {{ row.carVin }}
+            </a>
+          </template>
+        </el-table-column>
         <el-table-column label="品牌" align="center" prop="carModel" />
         <el-table-column label="类型" align="center" prop="useCharacter">
           <template #default="scope">
             <dict-tag :options="kp_use_character" :value="scope.row.useCharacter" />
           </template>
         </el-table-column>
-        <el-table-column label="备注" align="center" prop="remark" />
+        <el-table-column label="备注" align="center" prop="remark" min-width="120" show-overflow-tooltip />
         <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
           <template #default="scope">
             <el-tooltip content="修改" placement="top">
@@ -92,15 +126,7 @@
         <el-form-item label="类型" prop="useCharacter">
           <!-- <el-input v-model="form.useCharacter" placeholder="请输入使用性质: 默认 0:运营;、1:非运营;" /> -->
           <el-select v-model="form.useCharacter" placeholder="请选择类型" clearable filterable @change="handleQuery">
-            <el-option
-              v-for="item in [
-                { value: 0, label: '运营' },
-                { value: 1, label: '非运营' }
-              ]"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            />
+            <el-option v-for="item in kp_use_character" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
         <el-form-item label="备注" prop="remark">
@@ -122,8 +148,10 @@ import { listUserCar, getUserCar, delUserCar, addUserCar, updateUserCar } from '
 import { UserCarVO, UserCarQuery, UserCarForm } from '@/api/kpSystem/userCar/types';
 import { listChargeVoucher } from '@/api/kpSystem/chargeVoucher';
 import { listChargeAccount } from '@/api/kpSystem/chargeAccount';
+import { copyText } from '@/utils/index';
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
+const { kp_use_character } = toRefs<any>(proxy?.useDict('kp_use_character'));
 
 const userCarList = ref<UserCarVO[]>([]);
 const buttonLoading = ref(false);
