@@ -237,7 +237,7 @@ import { equipmentLike, stationLike, operatorLike } from '@/api/common';
 import { copyText } from '@/utils/index';
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { kp_order_start_type } = toRefs<any>(proxy?.useDict('kp_order_start_type'));
+const { kp_start_charge_seq_stat, kp_order_start_type } = toRefs<any>(proxy?.useDict('kp_start_charge_seq_stat', 'kp_order_start_type'));
 
 const chargeOrderList = ref<ChargeOrderVO[]>([]);
 const buttonLoading = ref(false);
