@@ -40,7 +40,7 @@
         <el-table-column v-if="false" label="自增id" align="center" prop="id" />
         <el-table-column label="站点名称" align="center" prop="stationName" width="120" show-overflow-tooltip />
         <el-table-column label="归属运营商" align="center" prop="operatorName" width="120" show-overflow-tooltip />
-        <el-table-column label="设备编号" align="center" prop="equipmentNo" width="120" show-overflow-tooltip />
+        <el-table-column label="设备编号" align="center" prop="equipmentNo" width="160" show-overflow-tooltip />
         <el-table-column label="枪号" align="center" prop="connectorNo" width="120" show-overflow-tooltip />
         <el-table-column label="枪名称" align="center" prop="connectorName" width="120" show-overflow-tooltip />
         <el-table-column label="额定电流" align="center" prop="currentValue" width="120" show-overflow-tooltip />

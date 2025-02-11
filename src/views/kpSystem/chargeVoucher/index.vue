@@ -42,7 +42,7 @@
       <el-table v-loading="loading" :data="chargeVoucherList" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" align="center" />
         <el-table-column v-if="false" label="自增id" align="center" prop="id" />
-        <el-table-column label="凭证编号" align="center" prop="voucherNumber" width="120" show-overflow-tooltip />
+        <el-table-column label="凭证编号" align="center" prop="voucherNumber" width="180" show-overflow-tooltip />
         <el-table-column label="凭证类型" align="center" prop="voucherType">
           <template #default="scope">
             <dict-tag :options="kp_voucher_type" :value="scope.row.voucherType" />

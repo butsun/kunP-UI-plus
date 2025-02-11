@@ -64,7 +64,7 @@
             </a>
           </template>
         </el-table-column>
-        <el-table-column label="vin码" align="center" prop="carVin" width="120" show-overflow-tooltip>
+        <el-table-column label="vin码" align="center" prop="carVin" width="200" show-overflow-tooltip>
           <template #default="{ row }">
             <a
               style="
