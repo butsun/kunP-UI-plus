@@ -45,8 +45,8 @@
       <el-table v-loading="loading" :data="userCarList" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" align="center" />
         <!-- <el-table-column v-if="true" label="车辆ID" align="center" prop="id" /> -->
-        <el-table-column label="归属账户" align="center" prop="accountName" min-width="120" show-overflow-tooltip />
-        <el-table-column label="车牌号" align="center" prop="plateNo" min-width="120" show-overflow-tooltip>
+        <el-table-column label="归属账户" align="center" prop="accountName" width="120" show-overflow-tooltip />
+        <el-table-column label="车牌号" align="center" prop="plateNo" width="120" show-overflow-tooltip>
           <template #default="{ row }">
             <a
               style="
@@ -64,7 +64,7 @@
             </a>
           </template>
         </el-table-column>
-        <el-table-column label="vin码" align="center" prop="carVin" min-width="120" show-overflow-tooltip>
+        <el-table-column label="vin码" align="center" prop="carVin" width="120" show-overflow-tooltip>
           <template #default="{ row }">
             <a
               style="
@@ -117,7 +117,7 @@
         <el-form-item label="vin码" prop="carVin">
           <!-- <el-input v-model="form.carVin" placeholder="请输入vin码" /> -->
           <el-select v-model="form.carVin" placeholder="请选择vin码" clearable filterable @change="handleQuery">
-            <el-option v-for="item in vinList" :key="item.id" :label="item.voucherNumber" :value="item.id" />
+            <el-option v-for="item in vinList" :key="item.id" :label="item.voucherNumber" :value="item.voucherNumber" />
           </el-select>
         </el-form-item>
         <el-form-item label="品牌" prop="carModel">

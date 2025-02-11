@@ -38,14 +38,14 @@
       <el-table v-loading="loading" :data="connectorList" @selection-change="handleSelectionChange">
         <!-- <el-table-column type="selection" width="55" align="center" /> -->
         <el-table-column v-if="false" label="自增id" align="center" prop="id" />
-        <el-table-column label="站点名称" align="center" prop="stationName" />
-        <el-table-column label="归属运营商" align="center" prop="operatorName" />
-        <el-table-column label="设备编号" align="center" prop="equipmentNo" />
-        <el-table-column label="枪号" align="center" prop="connectorNo" />
-        <el-table-column label="枪名称" align="center" prop="connectorName" />
-        <el-table-column label="额定电流" align="center" prop="currentValue" />
-        <el-table-column label="额定功率" align="center" prop="power" />
-        <el-table-column label="连网类型" align="center" prop="netType">
+        <el-table-column label="站点名称" align="center" prop="stationName" width="120" show-overflow-tooltip />
+        <el-table-column label="归属运营商" align="center" prop="operatorName" width="120" show-overflow-tooltip />
+        <el-table-column label="设备编号" align="center" prop="equipmentNo" width="120" show-overflow-tooltip />
+        <el-table-column label="枪号" align="center" prop="connectorNo" width="120" show-overflow-tooltip />
+        <el-table-column label="枪名称" align="center" prop="connectorName" width="120" show-overflow-tooltip />
+        <el-table-column label="额定电流" align="center" prop="currentValue" width="120" show-overflow-tooltip />
+        <el-table-column label="额定功率" align="center" prop="power" width="120" show-overflow-tooltip />
+        <el-table-column label="连网类型" align="center" prop="netType" width="120" show-overflow-tooltip>
           <template #default="scope">
             <dict-tag :options="kp_net_type" :value="scope.row.netType" />
           </template>

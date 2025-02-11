@@ -51,7 +51,7 @@
         <!-- 2. 列表栏保留   活动名称、站点名称、服务费折扣、充电费折扣、状态、备注 -->
         <!-- <el-table-column type="selection" width="55" align="center" /> -->
         <el-table-column label="活动名称" align="center" prop="activityName" />
-        <el-table-column label="运营商" align="center" prop="operatorName" />
+        <el-table-column label="运营商" align="center" prop="operatorName" width="120" show-overflow-tooltip />
         <el-table-column label="服务费折扣(%)" align="center" prop="disService" />
         <el-table-column label="充电费折扣(%)" align="center" prop="disElectricity" />
         <el-table-column label="禁用类型" align="center" prop="disableFlag">
@@ -65,7 +65,7 @@
           </template>
         </el-table-column>
         <el-table-column label="备注" align="center" prop="remark" />
-        <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+        <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="180">
           <template #default="scope">
             <el-tooltip content="修改" placement="top">
               <el-button v-hasPermi="['kpSystem:discountActivity:edit']" link type="primary" icon="Edit" @click="handleUpdate(scope.row)"></el-button>

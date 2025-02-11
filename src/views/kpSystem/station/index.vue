@@ -114,13 +114,13 @@
         <el-table-column label="计费模版" align="center" prop="priceTemplateName" min-width="120" show-overflow-tooltip />
         <el-table-column label="省" align="center" prop="province" />
         <el-table-column label="市" align="center" prop="city" />
-        <el-table-column label="详细地址" align="center" prop="address" min-width="120" show-overflow-tooltip />
+        <el-table-column label="详细地址" align="center" prop="address" width="120" show-overflow-tooltip />
         <el-table-column label="类型" align="center" prop="stationType">
           <template #default="scope">
             <dict-tag :options="kp_station_type" :value="scope.row.stationType" />
           </template>
         </el-table-column>
-        <el-table-column label="状态" align="center" prop="stationStatus">
+        <el-table-column label="状态" align="center" prop="stationStatus" width="120">
           <template #default="scope">
             <dict-tag :options="kp_station_status" :value="scope.row.stationStatus" />
           </template>
@@ -135,7 +135,7 @@
             <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d} {hh}:{mm}:{ss}') }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+        <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="180">
           <template #default="scope">
             <el-tooltip content="修改" placement="top">
               <el-button v-hasPermi="['kpSystem:station:view']" link type="primary" icon="View" @click="handleView(scope.row)"></el-button>

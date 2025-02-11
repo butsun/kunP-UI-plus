@@ -50,9 +50,9 @@
       <el-table v-loading="loading" :data="equipmentList" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" align="center" />
         <el-table-column v-if="false" label="" align="center" prop="id" />
-        <el-table-column label="设备编号" align="center" prop="equipmentNo" />
-        <el-table-column label="站点名称" align="center" prop="stationName" />
-        <el-table-column label="归属运营商" align="center" prop="operatorName" />
+        <el-table-column label="设备编号" align="center" prop="equipmentNo" width="120" show-overflow-tooltip />
+        <el-table-column label="站点名称" align="center" prop="stationName" width="120" show-overflow-tooltip />
+        <el-table-column label="归属运营商" align="center" prop="operatorName" width="120" show-overflow-tooltip />
         <el-table-column label="设备类型" align="center" prop="equipmentType">
           <template #default="scope">
             <dict-tag :options="kp_equipment_type" :value="scope.row.equipmentType" />
@@ -76,7 +76,7 @@
             <span>{{ parseTime(scope.row.onlineTm, '{y}-{m}-{d}') }}</span>
           </template> -->
         <!-- </el-table-column> -->
-        <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+        <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="180">
           <template #default="scope">
             <el-tooltip content="详情" placement="top">
               <el-button v-hasPermi="['kpSystem:equipment:query']" link type="primary" icon="View" @click="handleView(scope.row)"></el-button>

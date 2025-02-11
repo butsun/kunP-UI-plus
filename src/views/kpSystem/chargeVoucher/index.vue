@@ -42,14 +42,14 @@
       <el-table v-loading="loading" :data="chargeVoucherList" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" align="center" />
         <el-table-column v-if="false" label="自增id" align="center" prop="id" />
-        <el-table-column label="凭证编号" align="center" prop="voucherNumber" />
+        <el-table-column label="凭证编号" align="center" prop="voucherNumber" width="120" show-overflow-tooltip />
         <el-table-column label="凭证类型" align="center" prop="voucherType">
           <template #default="scope">
             <dict-tag :options="kp_voucher_type" :value="scope.row.voucherType" />
           </template>
         </el-table-column>
-        <el-table-column label="归属运营商" align="center" prop="operatorName" />
-        <el-table-column label="归属账户" align="center" prop="nickName" />
+        <el-table-column label="归属运营商" align="center" prop="operatorName" width="120" show-overflow-tooltip />
+        <el-table-column label="归属账户" align="center" prop="nickName" width="120" show-overflow-tooltip />
         <el-table-column label="创建时间" align="center" prop="createTime" width="180" />
         <el-table-column label="更新时间" align="center" prop="updateTime" width="180" />
         <el-table-column label="操作" align="center" class-name="small-padding fixed-width">

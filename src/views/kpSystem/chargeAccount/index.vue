@@ -46,7 +46,7 @@
         <el-table-column v-if="false" label="账户编号" align="center" prop="id" />
         <!-- <el-table-column label="账户编号" align="center" prop="mobile" /> -->
         <el-table-column label="昵称" align="center" prop="nickName" />
-        <el-table-column label="账户类型" align="center" prop="accoutType">
+        <el-table-column label="账户类型" align="center" prop="accoutType" width="120" show-overflow-tooltip>
           <template #default="scope">
             <dict-tag :options="kp_accout_type" :value="scope.row.accoutType" />
           </template>
