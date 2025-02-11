@@ -296,7 +296,7 @@ const vinList = ref<OperatorVO[]>([]);
 
 const getVinList = async () => {
   try {
-    const res = await listChargeVoucher();
+    const res = await listChargeVoucher({ voucherType: 2 });
     if (res.code === 200) {
       vinList.value = res.rows || [];
     }
