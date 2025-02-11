@@ -91,7 +91,7 @@
         </el-form-item>
         <el-form-item label="类型" prop="useCharacter">
           <!-- <el-input v-model="form.useCharacter" placeholder="请输入使用性质: 默认 0:运营;、1:非运营;" /> -->
-          <el-select v-model="form.carVin" placeholder="请选择类型" clearable filterable @change="handleQuery">
+          <el-select v-model="form.useCharacter" placeholder="请选择类型" clearable filterable @change="handleQuery">
             <el-option
               v-for="item in [
                 { value: 0, label: '运营' },
