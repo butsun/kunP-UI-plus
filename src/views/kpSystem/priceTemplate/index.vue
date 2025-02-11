@@ -212,7 +212,9 @@ const handleAdd = () => {
 };
 
 /** 修改按钮操作 */
+let _rowId = '';
 const handleUpdate = async (row: any) => {
+  _rowId = row.id;
   try {
     const res = await getPriceTemplateDetail(row.id);
     dialog.visible = true;
@@ -282,11 +284,21 @@ const editPriceRuleSubmit = async (any) => {
 // 提交处理
 const handlePriceRuleSubmit = async (formData: any) => {
   try {
-    formData.periods = JSON.stringify(formData.priceList);
-    delete formData.priceList;
-    await addPriceTemplate(formData);
-    ElMessage.success('保存成功');
-    dialog.visible = false;
+    if (!_rowId) {
+      formData.periods = JSON.stringify(formData.priceList);
+      delete formData.priceList;
+      await addPriceTemplate(formData);
+      ElMessage.success('保存成功');
+      dialog.visible = false;
+    } else {
+      formData.periods = JSON.stringify(formData.priceList);
+      delete formData.priceList;
+      formData.id = _rowId;
+      await updatePriceTemplate(formData);
+      ElMessage.success('保存成功');
+      dialog.visible = false;
+    }
+
     await getList();
   } catch (error) {
     console.error('保存失败:', error);

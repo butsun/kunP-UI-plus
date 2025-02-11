@@ -126,7 +126,7 @@
                   <div class="flex">
                     <p m="t-0 b-2"><span>充电凭证:</span> {{ scope.row.voucherNo }}</p>
                     <p m="t-0 b-2" style="display: flex">
-                      <span style="margin-right: 8px">启动方式: </span> <dict-tag :options="kp_start_charge_seq_stat" :value="scope.row.startType" />
+                      <span style="margin-right: 8px">启动方式: </span> <dict-tag :options="kp_order_start_type" :value="scope.row.startType" />
                     </p>
                     <p m="t-0 b-2"><span>充电量: </span> {{ scope.row.totalPower }}</p>
                   </div>
@@ -237,7 +237,7 @@ import { equipmentLike, stationLike, operatorLike } from '@/api/common';
 import { copyText } from '@/utils/index';
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { kp_start_charge_seq_stat } = toRefs<any>(proxy?.useDict('kp_start_charge_seq_stat'));
+const { kp_order_start_type } = toRefs<any>(proxy?.useDict('kp_order_start_type'));
 
 const chargeOrderList = ref<ChargeOrderVO[]>([]);
 const buttonLoading = ref(false);
