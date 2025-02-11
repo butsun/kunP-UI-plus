@@ -1,4 +1,5 @@
 export interface PriceTemplateVO {
+  id: any;
   /**
    * 计费编号
    */
@@ -55,6 +56,7 @@ export interface PriceTypeItemVO {
 }
 
 export interface PriceTemplateDetailVO {
+  [x: string]: any;
   /**
    * 站点ID
    */
@@ -90,7 +92,7 @@ export interface PriceTemplateForm extends BaseEntity {
   /**
    * 充电站ID
    */
-  stationId?: string | number;
+  stationId?: [];
 
   /**
    * 价格列表，包含48个时间段
@@ -104,7 +106,6 @@ export interface PriceTemplateForm extends BaseEntity {
 }
 
 export interface PriceTemplateQuery extends PageQuery {
-
   /**
    * 充电站ID
    */
@@ -135,10 +136,12 @@ export interface PriceTemplateQuery extends PageQuery {
    */
   servicePrice?: number;
 
-    /**
-     * 日期范围参数
-     */
-    params?: any;
+  /**
+   * 日期范围参数
+   */
+  params?: any;
+
+  remark?: string;
 }
 
 export interface PriceTemplateResponse {

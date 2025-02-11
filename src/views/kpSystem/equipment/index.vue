@@ -253,7 +253,7 @@ const equipmentLists = async () => {
 /** 模糊查询站点列表 */
 const stationLists = async () => {
   loading.value = true;
-  const res = await stationLike({ operatorId: form.value.operatorId });
+  const res = await stationLike({ operatorId: '' });
   stationOptions.value = res.rows.map((item: any) => ({
     label: item.stationName,
     value: item.id,
@@ -389,7 +389,7 @@ const handleView = (row: any) => {
 onMounted(() => {
   getList();
   equipmentLists();
-  // stationLists();
+  stationLists();
   operatorLists();
 });
 </script>

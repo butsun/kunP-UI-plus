@@ -18,6 +18,21 @@
             </div>
           </div>
         </div>
+        <!-- 选择分配的站点 -->
+        <div class="price-section">
+          <div class="sub-title">分配站点</div>
+          <div class="price-grid">
+            <div class="price-row">
+              <div class="price-item">
+                <el-form-item label=" " prop="stationId">
+                  <el-select v-model="form.stationId" placeholder="请选择分配的站点" style="width: 520px" multiple>
+                    <el-option v-for="item in stationOptions" :key="item.value" :label="item.label" :value="item.value" />
+                  </el-select>
+                </el-form-item>
+              </div>
+            </div>
+          </div>
+        </div>
         <!-- 分时电费 -->
         <div class="price-section">
           <div class="sub-title">分时电费</div>
@@ -245,6 +260,7 @@
 import { ref, reactive, watch, computed } from 'vue';
 import type { FormInstance } from 'element-plus';
 import { ElMessage } from 'element-plus';
+import { stationLike } from '@/api/common';
 
 interface PriceItemVO {
   startTime: string;
@@ -276,6 +292,7 @@ interface FormState {
   priceName: string;
   topElecPrice: string;
   peakElecPrice: string;
+  stationId: string;
   flatElecPrice: string;
   valleyElecPrice: string;
   topServPrice: string;
@@ -298,7 +315,8 @@ const initForm = (): FormState => ({
   valleyServPrice: '',
   timeRules: {},
   remark: '',
-  priceName: ''
+  priceName: '',
+  stationId: ''
 });
 
 const form = ref<FormState>(initForm());
@@ -426,42 +444,70 @@ const getPriceTypeByValue = (value: number): string => {
 /** 切换时段的价格类型 */
 const toggleTimeSlot = (time: string) => {
   console.log('time>>>>>>', time);
+
   if (!currentPeriod.value) {
     console.warn('未选择时段类型');
     return;
   }
 
-  // 第一次点击
-  if (!isSelecting.value) {
-    isSelecting.value = true;
-    lastClickedTime.value = time;
-    form.value.timeRules[time] = currentPeriod.value;
-    return;
-  }
+  console.log(currentPeriod.value);
 
-  // 第二次点击，连接时段
   const timeSlotIndex = timeSlots.value.findIndex((slot) => slot === time);
   const lastClickedIndex = timeSlots.value.findIndex((slot) => slot === lastClickedTime.value);
 
-  if (timeSlotIndex === -1 || lastClickedIndex === -1) return;
+  if (timeSlotIndex === -1) return;
 
-  // 确定开始和结束索引
+  // **第一次点击**：单个选中/取消
+  if (!isSelecting.value) {
+    isSelecting.value = true;
+    lastClickedTime.value = time;
+
+    // 若当前时段已有值，则取消选中，否则赋值
+    if (form.value.timeRules[time] === currentPeriod.value) {
+      delete form.value.timeRules[time];
+    } else {
+      form.value.timeRules[time] = currentPeriod.value;
+    }
+
+    return;
+  }
+
+  // **第二次点击**：批量操作
+  if (lastClickedIndex === -1) return;
+
   const startIndex = Math.min(timeSlotIndex, lastClickedIndex);
   const endIndex = Math.max(timeSlotIndex, lastClickedIndex);
 
-  // 设置所有中间时段
+  // 判断选中的范围内，是否所有的时段都已经被当前类型填充
+  const allSameType = timeSlots.value.slice(startIndex, endIndex + 1).every((slot) => form.value.timeRules[slot] === currentPeriod.value);
+
   for (let i = startIndex; i <= endIndex; i++) {
     const slot = timeSlots.value[i];
-    // 如果该时段还没有被设置过其他类型，则设置为当前类型
-    if (!form.value.timeRules[slot] || form.value.timeRules[slot] === currentPeriod.value) {
+
+    if (allSameType) {
+      // 如果所有选中的都是当前类型，则批量取消
+      delete form.value.timeRules[slot];
+    } else {
+      // 否则，填充当前类型
       form.value.timeRules[slot] = currentPeriod.value;
     }
   }
 
-  // 更新最后点击的时段
   lastClickedTime.value = time;
+  checkAndResetPeriods();
 };
+/** 检查 timeRules 是否还包含 periods 的类型，如果没有，则重置 periods */
+const checkAndResetPeriods = () => {
+  const usedTypes = new Set(Object.values(form.value.timeRules)); // 获取当前所有已选时段的类型
 
+  const hasActivePeriod = periods.value.some((period) => usedTypes.has(period.type));
+
+  if (!hasActivePeriod) {
+    // 如果没有匹配的类型，则重置 periods
+    periods.value.forEach((p) => (p.isChecked = false));
+    currentPeriod.value = '';
+  }
+};
 /** 处理时段按钮点击 */
 const handlePeriodClick = (data, index) => {
   const { type } = data;
@@ -494,6 +540,7 @@ const flagMapping = {
 };
 /** 设置表单数据 */
 const setFormData = (data?: any) => {
+  console.log('data>>>>>>>', data);
   // 重置表单为初始状态
   form.value = initForm();
   if (!data) return;
@@ -523,7 +570,9 @@ const setFormData = (data?: any) => {
   if (data.remark) {
     form.value.remark = data.remark;
   }
-
+  if (data.stationIds) {
+    form.value.stationId = data.stationIds;
+  }
   // 设置价格数据（如果存在）
   const priceFields = [
     'topElecPrice',
@@ -674,6 +723,19 @@ const hasErrors = computed(() => Object.keys(priceErrors).length > 0);
 
 // 暴露方法给父组件
 defineExpose({ setFormData });
+const stationOptions = ref([]);
+/** 模糊查询站点列表 */
+const stationLists = async () => {
+  const res = await stationLike({ operatorId: '' });
+  stationOptions.value = res.rows.map((item: any) => ({
+    label: item.stationName,
+    value: item.id,
+    name: item.stationName
+  }));
+};
+onMounted(() => {
+  stationLists();
+});
 </script>
 
 <style lang="scss" scoped>
@@ -777,17 +839,17 @@ defineExpose({ setFormData });
   color: #fff;
 }
 .bg-valley {
-  background-color: #fd4350 !important;
-  border-color: #fd4350 !important;
+  background-color: rgba(64, 158, 255, 1) !important;
+  border-color: rgba(64, 158, 255, 1) !important;
 }
 .bg-valley1 {
   background-color: rgba(64, 158, 255, 0.5) !important;
-  border-color: #fd4350 !important;
+  border-color: rgba(64, 158, 255, 1) !important;
   color: gray;
 }
 .bg-valley1-active {
   background-color: rgba(64, 158, 255, 1) !important;
-  border-color: #fd4350 !important;
+  border-color: rgba(64, 158, 255, 1) !important;
   color: #fff;
 }
 .time-slot.active.bg-peak {
@@ -800,7 +862,7 @@ defineExpose({ setFormData });
   background-color: #67c23a !important;
 }
 .time-slot.active.bg-valley {
-  background-color: #fd4350 !important;
+  background-color: rgba(64, 158, 255, 1) !important;
 }
 
 .price-input {

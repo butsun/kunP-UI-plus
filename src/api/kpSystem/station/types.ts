@@ -77,6 +77,7 @@ export interface StationVO {
    * 价格模版
    */
   priceId: number;
+  priceTemplateName: string;
 }
 
 export interface StationForm extends BaseEntity {
@@ -148,7 +149,7 @@ export interface StationForm extends BaseEntity {
    * 价格模版
    */
   priceId?: number;
-  
+  priceTemplateName?: string;
 }
 
 export interface StationQuery extends PageQuery {

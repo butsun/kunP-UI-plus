@@ -59,22 +59,50 @@
       <el-table v-loading="loading" :data="chargeOrderList" @selection-change="handleSelectionChange" @expand-change="handleExpandChange">
         <el-table-column type="selection" width="55" align="center" />
         <el-table-column v-if="false" label="" align="center" prop="id" />
-        <el-table-column label="订单号" align="center" prop="startChargeSeq" width="80" :cell-style="{ whiteSpace: 'nowrap' }" />
+        <el-table-column label="订单号" align="center" prop="startChargeSeq" width="100" show-overflow-tooltip>
+          <template #default="{ row }">
+            <a
+              style="
+                display: flex;
+                align-items: center;
+                white-space: nowrap;
+                width: 100px;
+                text-decoration: underline;
+                cursor: pointer;
+                color: var(--el-color-primary);
+              "
+              @click="copyText(row.startChargeSeq)"
+            >
+              {{ row.startChargeSeq }}
+            </a>
+          </template>
+        </el-table-column>
+
         <el-table-column label="站点" align="center" prop="stationName" />
+        <el-table-column label="设备编号" align="center" prop="equipmentNo" width="100" show-overflow-tooltip>
+          <template #default="{ row }">
+            <a
+              style="
+                display: flex;
+                align-items: center;
+                white-space: nowrap;
+                width: 100px;
+                text-decoration: underline;
+                cursor: pointer;
+                color: var(--el-color-primary);
+              "
+              @click="copyText(row.equipmentNo)"
+            >
+              {{ row.equipmentNo }}
+            </a>
+          </template>
+        </el-table-column>
         <el-table-column label="运营商" align="center" prop="operatorName" />
         <el-table-column label="充电金额" align="center" prop="totalMoney" />
         <el-table-column label="优惠金额" align="center" prop="activityMoney" />
         <el-table-column label="最终金额" align="center" prop="finalTotalMoney" />
-        <el-table-column label="开始充电时间" align="center" prop="startTime" width="180">
-          <template #default="scope">
-            <span>{{ parseTime(scope.row.startTime, '{y}-{m}-{d}') }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="结束充电时间" align="center" prop="startTime" width="180">
-          <template #default="scope">
-            <span>{{ parseTime(scope.row.endTime, '{y}-{m}-{d}') }}</span>
-          </template>
-        </el-table-column>
+        <el-table-column label="开始充电时间" align="center" prop="startTime" width="160" show-overflow-tooltip />
+        <el-table-column label="结束充电时间" align="center" prop="startTime" width="180" show-overflow-tooltip />
         <el-table-column label="订单状态" align="center" prop="startChargeSeqStat">
           <template #default="scope">
             <dict-tag :options="kp_start_charge_seq_stat" :value="scope.row.startChargeSeqStat" />
@@ -151,8 +179,8 @@
                     <p m="t-0 b-2"></p>
                   </div>
                   <div class="flex">
-                    <p m="t-0 b-2"></p>
-                    <p m="t-0 b-2" class="money"><span>总金额（元）:</span> {{ scope.row.finalTotalMoney }}</p>
+                    <p m="t-0 b-2" class="money"><span>订单金额（元）:</span>{{ scope.row.totalMoney }}</p>
+                    <p m="t-0 b-2" class="money"><span>最终金额（元）:</span> {{ scope.row.finalTotalMoney }}</p>
                     <p m="t-0 b-2"></p>
                   </div>
                 </div>
@@ -206,6 +234,7 @@
 import { listChargeOrder, getChargeOrder, delChargeOrder, addChargeOrder, updateChargeOrder } from '@/api/kpSystem/chargeOrder';
 import { ChargeOrderVO, ChargeOrderQuery, ChargeOrderForm } from '@/api/kpSystem/chargeOrder/types';
 import { equipmentLike, stationLike, operatorLike } from '@/api/common';
+import { copyText } from '@/utils/index';
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 const { kp_start_charge_seq_stat } = toRefs<any>(proxy?.useDict('kp_start_charge_seq_stat'));

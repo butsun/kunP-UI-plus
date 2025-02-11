@@ -316,3 +316,13 @@ export const removeClass = (ele: HTMLElement, cls: string) => {
 export const isExternal = (path: string) => {
   return /^(https?:|http?:|mailto:|tel:)/.test(path);
 };
+export const copyText = (text: string) => {
+  navigator.clipboard
+    .writeText(text)
+    .then(() => {
+      ElMessage.success('复制成功！');
+    })
+    .catch(() => {
+      ElMessage.error('复制失败，请手动复制');
+    });
+};

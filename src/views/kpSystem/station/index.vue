@@ -68,15 +68,53 @@
 
       <el-table v-loading="loading" :data="stationList" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" align="center" />
-        <el-table-column label="归属运营商" align="center" min-width="120" show-overflow-tooltip>
+        <!-- <el-table-column label="归属运营商" align="center" min-width="120" show-overflow-tooltip>
           <template #default="scope">
             {{ operatorList.find((op) => op.id === scope.row.operatorId)?.operatorName }}
           </template>
+          
+        </el-table-column> -->
+        <el-table-column label="运营商" align="center" prop="operatorName" min-width="120" show-overflow-tooltip>
+          <template #default="{ row }">
+            <a
+              style="
+                display: flex;
+                align-items: center;
+                white-space: nowrap;
+                width: 100px;
+                text-decoration: underline;
+                cursor: pointer;
+                color: var(--el-color-primary);
+              "
+              @click="copyText(row.operatorName)"
+            >
+              {{ row.operatorName }}
+            </a>
+          </template>
         </el-table-column>
-        <el-table-column label="站点名称" align="center" prop="stationName" />
+        <!-- <el-table-column label="站点名称" align="center" prop="stationName" min-width="120" show-overflow-tooltip /> -->
+        <el-table-column label="站点名称" align="center" prop="stationName" min-width="120" show-overflow-tooltip>
+          <template #default="{ row }">
+            <a
+              style="
+                display: flex;
+                align-items: center;
+                white-space: nowrap;
+                width: 100px;
+                text-decoration: underline;
+                cursor: pointer;
+                color: var(--el-color-primary);
+              "
+              @click="copyText(row.stationName)"
+            >
+              {{ row.stationName }}
+            </a>
+          </template>
+        </el-table-column>
+        <el-table-column label="计费模版" align="center" prop="priceTemplateName" min-width="120" show-overflow-tooltip />
         <el-table-column label="省" align="center" prop="province" />
         <el-table-column label="市" align="center" prop="city" />
-        <el-table-column label="详细地址" align="center" prop="address" />
+        <el-table-column label="详细地址" align="center" prop="address" min-width="120" show-overflow-tooltip />
         <el-table-column label="类型" align="center" prop="stationType">
           <template #default="scope">
             <dict-tag :options="kp_station_type" :value="scope.row.stationType" />
@@ -139,11 +177,8 @@
         <el-form-item label="服务电话" prop="serviceTel">
           <el-input v-model="form.serviceTel" placeholder="请输入服务电话" style="width: 240px" :disabled="isDetail" />
         </el-form-item>
-        <el-form-item label="价格模版" prop="priceId">
-          <!-- <el-input v-model="form.serviceTel" placeholder="请输入价格模版" style="width: 240px" :disabled="isDetail" /> -->
-          <el-select v-model="form.priceId" placeholder="请输入价格模版" clearable filterable style="width: 240px" :disabled="isDetail">
-            <el-option v-for="item in priceTemplateList" :key="item.id" :label="item.priceName" :value="item.id" />
-          </el-select>
+        <el-form-item label="计费模版" prop="priceTemplateName">
+          <el-input v-model="form.priceTemplateName" placeholder="请输入价格模版" style="width: 240px" disabled />
         </el-form-item>
 
         <el-form-item label="类型" prop="stationType">
@@ -187,6 +222,8 @@ import { listOperator } from '@/api/kpSystem/operator';
 import type { OperatorVO } from '@/api/kpSystem/operator/types';
 import { ref, onMounted } from 'vue';
 import { RegionSelect } from '@/components/RegionSelect';
+import { listPriceTemplate } from '@/api/kpSystem/priceTemplate';
+import { copyText } from '@/utils/index';
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 const { kp_station_type, kp_station_status } = toRefs<any>(proxy?.useDict('kp_station_type', 'kp_station_status'));
@@ -222,7 +259,8 @@ const initFormData: StationForm = {
   busineHours: undefined,
   parkFee: undefined,
   remark: undefined,
-  priceId: undefined
+  priceId: undefined,
+  priceTemplateName: undefined
 };
 const data = reactive<PageData<StationForm, StationQuery>>({
   form: { ...initFormData },
@@ -407,6 +445,7 @@ const getPriceTemplateList = async () => {
     console.error('获取价格模版失败:', error);
   }
 };
+
 onMounted(() => {
   getList();
   getOperatorList(); // 获取运营商列表

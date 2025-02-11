@@ -56,7 +56,25 @@
 
       <el-table v-loading="loading" :data="operatorList" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" align="center" />
-        <el-table-column label="运营商" align="center" prop="operatorName" min-width="120" show-overflow-tooltip />
+        <!-- <el-table-column label="运营商" align="center" prop="operatorName" min-width="120" show-overflow-tooltip /> -->
+        <el-table-column label="运营商" align="center" prop="operatorName" min-width="120" show-overflow-tooltip>
+          <template #default="{ row }">
+            <a
+              style="
+                display: flex;
+                align-items: center;
+                white-space: nowrap;
+                width: 100px;
+                text-decoration: underline;
+                cursor: pointer;
+                color: var(--el-color-primary);
+              "
+              @click="copyText(row.operatorName)"
+            >
+              {{ row.operatorName }}
+            </a>
+          </template>
+        </el-table-column>
         <el-table-column label="省份" align="center" prop="province" min-width="100" />
         <el-table-column label="城市" align="center" prop="city" min-width="100" />
         <el-table-column label="地址" align="center" prop="address" min-width="150" show-overflow-tooltip />
@@ -109,6 +127,7 @@ import { listOperator, getOperator, delOperator, addOperator, updateOperator } f
 import { OperatorVO, OperatorQuery, OperatorForm } from '@/api/kpSystem/operator/types';
 import { ref, onMounted } from 'vue';
 import { RegionSelect } from '@/components/RegionSelect';
+import { copyText } from '@/utils/index';
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 
