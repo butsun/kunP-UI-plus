@@ -73,9 +73,9 @@ const userStore = useUserStore();
 const router = useRouter();
 
 const loginForm = ref<LoginData>({
-  tenantId: '000000',
-  username: 'admin',
-  password: 'admin123',
+  tenantId: '',
+  username: '',
+  password: '',
   rememberMe: false,
   code: '',
   uuid: ''
