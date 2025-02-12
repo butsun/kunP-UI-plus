@@ -48,7 +48,7 @@
         <el-table-column type="selection" width="55" align="center" />
         <el-table-column label="模版名称" align="center" prop="priceName" />
         <el-table-column label="备注" align="center" prop="remark" width="180" min-width="120" show-overflow-tooltip />
-        <el-table-column label="最后修改时间" align="center" prop="createTime" width="180" />
+        <el-table-column label="最后修改时间" align="center" prop="updateTime" width="180" />
         <el-table-column label="操作" align="center" width="200">
           <template #default="scope">
             <el-button link type="primary" @click="distributionSite(scope.row)">分配站点</el-button>
