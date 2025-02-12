@@ -1,7 +1,7 @@
 {
   "name": "EVROC",
   "version": "5.2.3",
-  "description": "EVROC多租户管理系统",
+  "description": "瑶枢充电云平台",
   "author": "LionLi",
   "license": "MIT",
   "type": "module",
