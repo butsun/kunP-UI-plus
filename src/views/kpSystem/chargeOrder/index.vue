@@ -44,11 +44,11 @@
               >修改</el-button
             >
           </el-col> -->
-          <el-col :span="1.5">
+          <!-- <el-col :span="1.5">
             <el-button v-hasPermi="['kpSystem:chargeOrder:remove']" type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete()"
               >删除</el-button
             >
-          </el-col>
+          </el-col> -->
           <el-col :span="1.5">
             <el-button v-hasPermi="['kpSystem:chargeOrder:export']" type="warning" plain icon="Download" @click="handleExport">导出</el-button>
           </el-col>
@@ -102,7 +102,7 @@
         <el-table-column label="优惠金额" align="center" prop="activityMoney" />
         <el-table-column label="最终金额" align="center" prop="finalTotalMoney" />
         <el-table-column label="开始充电时间" align="center" prop="startTime" width="160" show-overflow-tooltip />
-        <el-table-column label="结束充电时间" align="center" prop="startTime" width="180" show-overflow-tooltip />
+        <el-table-column label="结束充电时间" align="center" prop="endTime" width="180" show-overflow-tooltip />
         <el-table-column label="订单状态" align="center" prop="startChargeSeqStat">
           <template #default="scope">
             <dict-tag :options="kp_start_charge_seq_stat" :value="scope.row.startChargeSeqStat" />
