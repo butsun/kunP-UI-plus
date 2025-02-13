@@ -113,7 +113,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="枪数" prop="gunSum">
-          <el-input v-model="form.gunSum" placeholder="请输入枪数" disabled />
+          <el-input v-model="form.gunSum" placeholder="请输入枪数" />
           <!-- <el-input-number v-model="form.gunSum" :min="1" @change="handleChange" d/> -->
         </el-form-item>
         <el-form-item label="设备类型" prop="equipmentType">

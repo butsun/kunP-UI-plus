@@ -146,7 +146,7 @@
               <div class="detail-container">
                 <div m="4">
                   <div class="flex">
-                    <p m="t-0 b-2"><span>充电设备: </span> {{ scope.row.equipmentId }}</p>
+                    <p m="t-0 b-2"><span>充电设备: </span> {{ scope.row.equipmentNo }}</p>
                     <p m="t-0 b-2"><span>站点: </span> {{ scope.row.stationName }}</p>
                     <p m="t-0 b-2"><span>运营商:</span> {{ scope.row.operatorName }}</p>
                   </div>

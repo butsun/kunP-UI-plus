@@ -33,7 +33,7 @@
           <div class="detail-container">
             <div m="4">
               <div class="flex">
-                <p m="t-0 b-2">充电设备: {{ scope.row.form.equipmentId }}</p>
+                <p m="t-0 b-2">充电设备: {{ scope.row.form.equipmentNo }}</p>
                 <p m="t-0 b-2">站点: {{ scope.row.form.stationName }}</p>
                 <p m="t-0 b-2">运营商: {{ scope.row.form.operatorName }}</p>
               </div>
