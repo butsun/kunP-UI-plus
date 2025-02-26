@@ -3,10 +3,9 @@
     <el-form ref="loginRef" :model="loginForm" :rules="loginRules" class="login-form">
       <h3 class="title">ALKAID DUBHE CIOUD</h3>
       <el-form-item v-if="tenantEnabled" prop="tenantId">
-        <el-select v-model="loginForm.tenantId" filterable placeholder="请选择/输入公司名称" style="width: 100%">
-          <el-option v-for="item in tenantList" :key="item.tenantId" :label="item.companyName" :value="item.tenantId"></el-option>
+        <el-input v-model="loginForm.tenantName" filterable placeholder="请输入租户名称" style="width: 100%">
           <template #prefix><svg-icon icon-class="company" class="el-input__icon input-icon" /></template>
-        </el-select>
+        </el-input>
       </el-form-item>
       <el-form-item prop="username">
         <el-input v-model="loginForm.username" type="text" size="large" auto-complete="off" placeholder="账号">
@@ -56,13 +55,13 @@
     </el-form>
     <!--  底部  -->
     <div class="el-login-footer">
-      <span>Copyright © 2025 All Rights Reserved.</span>
+      <span>Copyright 2025 All Rights Reserved.</span>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { getCodeImg, getTenantList } from '@/api/login';
+import { getCodeImg, getTenantList, getTenantByName } from '@/api/login';
 import { authBinding } from '@/api/system/social/auth';
 import { useUserStore } from '@/store/modules/user';
 import { LoginData, TenantVO } from '@/api/types';
@@ -73,7 +72,8 @@ const userStore = useUserStore();
 const router = useRouter();
 
 const loginForm = ref<LoginData>({
-  tenantId: '000000',
+  tenantId: '',
+  tenantName: '', // 
   username: '',
   password: '',
   rememberMe: false,
@@ -82,10 +82,10 @@ const loginForm = ref<LoginData>({
 } as LoginData);
 
 const loginRules: ElFormRules = {
-  tenantId: [{ required: true, trigger: 'blur', message: '请输入您的租户编号' }],
-  username: [{ required: true, trigger: 'blur', message: '请输入您的账号' }],
-  password: [{ required: true, trigger: 'blur', message: '请输入您的密码' }],
-  code: [{ required: true, trigger: 'change', message: '请输入验证码' }]
+  tenantName: [{ required: true, trigger: 'blur', message: '' }],
+  username: [{ required: true, trigger: 'blur', message: '' }],
+  password: [{ required: true, trigger: 'blur', message: '' }],
+  code: [{ required: true, trigger: 'change', message: '' }]
 };
 
 const codeUrl = ref('');
@@ -95,7 +95,7 @@ const captchaEnabled = ref(true);
 // 租户开关
 const tenantEnabled = ref(true);
 
-// 注册开关
+// 注册
 const register = ref(false);
 const redirect = ref('/');
 const loginRef = ref<ElFormInstance>();
@@ -114,31 +114,52 @@ const handleLogin = () => {
   loginRef.value?.validate(async (valid: boolean, fields: any) => {
     if (valid) {
       loading.value = true;
-      // 勾选了需要记住密码设置在 localStorage 中设置记住用户名和密码
-      if (loginForm.value.rememberMe) {
-        localStorage.setItem('tenantId', String(loginForm.value.tenantId));
-        localStorage.setItem('username', String(loginForm.value.username));
-        localStorage.setItem('password', String(loginForm.value.password));
-        localStorage.setItem('rememberMe', String(loginForm.value.rememberMe));
-      } else {
-        // 否则移除
-        localStorage.removeItem('tenantId');
-        localStorage.removeItem('username');
-        localStorage.removeItem('password');
-        localStorage.removeItem('rememberMe');
-      }
-      // 调用action的登录方法
-      const [err] = await to(userStore.login(loginForm.value));
-      if (!err) {
-        const redirectUrl = redirect.value || '/';
-        await router.push(redirectUrl);
-        loading.value = false;
-      } else {
-        loading.value = false;
-        // 重新获取验证码
-        if (captchaEnabled.value) {
-          await getCode();
+         
+      try {
+        // 租户名称查询
+        if (tenantEnabled.value && loginForm.value.tenantName) {
+          const response = await getTenantByName(loginForm.value.tenantName);
+          
+          if (response.code === HttpStatus.SUCCESS && response.data) {
+            // 查询是否成功
+            loginForm.value.tenantId = response.data.tenantId;
+          } else {
+            // 查询失败
+            ElMessage.error('租户不存在，请联系管理员');
+            loading.value = false;
+            return;
+          }
         }
+        
+        // 记住密码
+        if (loginForm.value.rememberMe) {
+          localStorage.setItem('tenantName', String(loginForm.value.tenantName)); // 
+          localStorage.setItem('username', String(loginForm.value.username));
+          localStorage.setItem('password', String(loginForm.value.password));
+          localStorage.setItem('rememberMe', String(loginForm.value.rememberMe));
+        } else {
+          localStorage.removeItem('tenantName');
+          localStorage.removeItem('username');
+          localStorage.removeItem('password');
+          localStorage.removeItem('rememberMe');
+        }
+        
+        // 执行登录
+        const [err] = await to(userStore.login(loginForm.value));
+        if (!err) {
+          const redirectUrl = redirect.value || '/';
+          await router.push(redirectUrl);
+        } else {
+          // 验证码获取
+          if (captchaEnabled.value) {
+            await getCode();
+          }
+        }
+      } catch (error) {
+        console.error('', error);
+        ElMessage.error('');
+      } finally {
+        loading.value = false;
       }
     } else {
       console.log('error submit!', fields);
@@ -147,7 +168,7 @@ const handleLogin = () => {
 };
 
 /**
- * 获取验证码
+ * 
  */
 const getCode = async () => {
   const res = await getCodeImg();
@@ -160,12 +181,12 @@ const getCode = async () => {
 };
 
 const getLoginData = () => {
-  const tenantId = localStorage.getItem('tenantId');
+  const tenantName = localStorage.getItem('tenantName');
   const username = localStorage.getItem('username');
   const password = localStorage.getItem('password');
   const rememberMe = localStorage.getItem('rememberMe');
   loginForm.value = {
-    tenantId: tenantId === null ? String(loginForm.value.tenantId) : tenantId,
+    tenantName: tenantName === null ? String(loginForm.value.tenantName) : tenantName,
     username: username === null ? String(loginForm.value.username) : username,
     password: password === null ? String(loginForm.value.password) : String(password),
     rememberMe: rememberMe === null ? false : Boolean(rememberMe)
@@ -173,7 +194,7 @@ const getLoginData = () => {
 };
 
 /**
- * 获取租户列表
+ * 
  */
 const initTenantList = async () => {
   const { data } = await getTenantList();
@@ -187,13 +208,13 @@ const initTenantList = async () => {
 };
 
 /**
- * 第三方登录
+ * 
  * @param type
  */
 const doSocialLogin = (type: string) => {
   authBinding(type, loginForm.value.tenantId).then((res: any) => {
     if (res.code === HttpStatus.SUCCESS) {
-      // 获取授权地址跳转
+      // 
       window.location.href = res.data;
     } else {
       ElMessage.error(res.msg);
@@ -203,7 +224,7 @@ const doSocialLogin = (type: string) => {
 
 onMounted(() => {
   getCode();
-  initTenantList();
+  // initTenantList();
   getLoginData();
 });
 </script>

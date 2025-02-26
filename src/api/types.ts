@@ -16,6 +16,7 @@ export type RegisterForm = {
  */
 export interface LoginData {
   tenantId?: string;
+  tenantName?: string; // 添加这个新字段
   username?: string;
   password?: string;
   rememberMe?: boolean;

@@ -109,3 +109,11 @@ export function getTenantList(): AxiosPromise<TenantInfo> {
     method: 'get'
   });
 }
+
+// 通过名称获取租户信息
+export function getTenantByName(name: string) {
+  return request({
+    url: `/auth/tenant/${encodeURIComponent(name)}`,
+    method: 'get'
+  });
+}
