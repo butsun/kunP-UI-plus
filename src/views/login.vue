@@ -3,7 +3,7 @@
     <el-form ref="loginRef" :model="loginForm" :rules="loginRules" class="login-form">
       <h3 class="title">ALKAID DUBHE CIOUD</h3>
       <el-form-item v-if="tenantEnabled" prop="tenantId">
-        <el-input v-model="loginForm.tenantName" filterable placeholder="请输入租户名称" style="width: 100%">
+        <el-input v-model="loginForm.tenantName" filterable placeholder="请输入租户名称或租户ID" style="width: 100%">
           <template #prefix><svg-icon icon-class="company" class="el-input__icon input-icon" /></template>
         </el-input>
       </el-form-item>
@@ -118,16 +118,23 @@ const handleLogin = () => {
       try {
         // 租户名称查询
         if (tenantEnabled.value && loginForm.value.tenantName) {
-          const response = await getTenantByName(loginForm.value.tenantName);
-          
-          if (response.code === HttpStatus.SUCCESS && response.data) {
-            // 查询是否成功
-            loginForm.value.tenantId = response.data.tenantId;
+          // 判断是否为六位数字
+          if (/^\d{6}$/.test(loginForm.value.tenantName)) {
+            // 如果是六位数字，直接作为租户ID使用
+            loginForm.value.tenantId = loginForm.value.tenantName;
           } else {
-            // 查询失败
-            ElMessage.error('租户不存在，请联系管理员');
-            loading.value = false;
-            return;
+            // 如果不是六位数字，则作为租户名称查询
+            const response = await getTenantByName(loginForm.value.tenantName);
+            
+            if (response.code === HttpStatus.SUCCESS && response.data) {
+              // 查询是否成功
+              loginForm.value.tenantId = response.data.tenantId;
+            } else {
+              // 查询失败
+              ElMessage.error('对不起, 您的租户不存在，请联系管理员');
+              loading.value = false;
+              return;
+            }
           }
         }
         
