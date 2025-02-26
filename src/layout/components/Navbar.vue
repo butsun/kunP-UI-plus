@@ -122,12 +122,27 @@ const openSearchMenu = () => {
 
 // 动态切换
 const dynamicTenantEvent = async (tenantId: string) => {
+  // if (companyName.value != null && companyName.value !== '') {
+  //   await dynamicTenant(tenantId);
+  //   dynamic.value = true;
+  //   proxy?.$tab.closeAllPage();
+  //   proxy?.$router.push('/');
+  //   proxy?.$tab.refreshPage();
+  // }
   if (companyName.value != null && companyName.value !== '') {
-    await dynamicTenant(tenantId);
-    dynamic.value = true;
-    proxy?.$tab.closeAllPage();
-    proxy?.$router.push('/');
-    proxy?.$tab.refreshPage();
+    try {
+      await dynamicTenant(tenantId);
+      dynamic.value = true;
+      await proxy?.$tab.closeAllPage();
+      // await proxy?.$router.push('/');
+      // 添加一个小延迟确保DOM已更新
+      setTimeout(() => {
+        proxy?.$tab.refreshPage();
+      }, 100);
+    } catch (error) {
+      console.error('租户切换错误:', error);
+      // 可以在此添加错误处理，如显示提示信息
+    }
   }
 };
 
