@@ -3,7 +3,7 @@
     <el-form ref="loginRef" :model="loginForm" :rules="loginRules" class="login-form">
       <h3 class="title">ALKAID DUBHE CIOUD</h3>
       <el-form-item v-if="tenantEnabled" prop="tenantId">
-        <el-input v-model="loginForm.tenantName" filterable placeholder="请输入租户名称或租户ID" style="width: 100%">
+        <el-input v-model="loginForm.tenantName" filterable placeholder="请输入公司名称或公司ID" style="width: 100%">
           <template #prefix><svg-icon icon-class="company" class="el-input__icon input-icon" /></template>
         </el-input>
       </el-form-item>
@@ -131,7 +131,7 @@ const handleLogin = () => {
               loginForm.value.tenantId = response.data.tenantId;
             } else {
               // 查询失败
-              ElMessage.error('对不起, 您的租户不存在，请联系管理员');
+              ElMessage.error('对不起, 您的公司不存在，请联系管理员');
               loading.value = false;
               return;
             }
