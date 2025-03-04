@@ -427,13 +427,13 @@ const convertTimeToSlot = (time: string): string => {
 const getPriceTypeByValue = (value: number): string => {
   console.log('获取价格类型值:', value); // 添加日志
   switch (value) {
-    case 0:
-      return 'top'; // 尖时段
     case 1:
-      return 'peak'; // 峰时段
+      return 'top'; // 尖时段
     case 2:
-      return 'flat'; // 平时段
+      return 'peak'; // 峰时段
     case 3:
+      return 'flat'; // 平时段
+    case 4:
       return 'valley'; // 谷时段
     default:
       console.warn(`未知的价格类型: ${value}，使用默认值 'flat'`); // 添加警告日志
@@ -533,10 +533,10 @@ const resetTimeRules = () => {
 };
 // 创建一个映射关系
 const flagMapping = {
-  0: 'top',
-  1: 'peak',
-  2: 'flat',
-  3: 'valley'
+  1: 'top',
+  2: 'peak',
+  3: 'flat',
+  4: 'valley'
 };
 /** 设置表单数据 */
 const setFormData = (data?: any) => {
@@ -618,10 +618,10 @@ const handleSubmit = async () => {
 
         // 构建priceTypeList
         const typeConfigs = [
-          { type: 0, elecKey: 'topElecPrice', serviceKey: 'topservPrice' },
-          { type: 1, elecKey: 'peakElecPrice', serviceKey: 'peakservPrice' },
-          { type: 2, elecKey: 'flatElecPrice', serviceKey: 'flatServPrice' },
-          { type: 3, elecKey: 'valleyElecPrice', serviceKey: 'valleyServPrice' }
+          { type: 1, elecKey: 'topElecPrice', serviceKey: 'topservPrice' },
+          { type: 2, elecKey: 'peakElecPrice', serviceKey: 'peakservPrice' },
+          { type: 3, elecKey: 'flatElecPrice', serviceKey: 'flatServPrice' },
+          { type: 4, elecKey: 'valleyElecPrice', serviceKey: 'valleyServPrice' }
         ];
 
         // typeConfigs.forEach((config) => {
@@ -644,8 +644,9 @@ const handleSubmit = async () => {
         // 构建priceList
         console.log('form.value.timeRules', form.value.timeRules);
         for (const [timeSlot, type] of Object.entries(form.value.timeRules)) {
-          const priceType = ['top', 'peak', 'flat', 'valley'].indexOf(type);
-          if (priceType === -1) continue;
+          // 反向查找flagMapping中的键
+          const priceType = Number(Object.entries(flagMapping).find(([key, value]) => value === type)?.[0]);
+          if (!priceType) continue;
 
           // 从时段字符串中提取前半段时间
           const startTimeStr = timeSlot.split('-')[0];
