@@ -135,6 +135,7 @@ const dynamicTenantEvent = async (tenantId: string) => {
       dynamic.value = true;
       await proxy?.$tab.closeAllPage();
       // await proxy?.$router.push('/');
+
       // 添加一个小延迟确保DOM已更新
       setTimeout(() => {
         proxy?.$tab.refreshPage();
