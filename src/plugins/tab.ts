@@ -36,7 +36,7 @@ export default {
     }
     await useTagsViewStore().delCachedView(obj);
     await router.replace({
-      path: '/redirect' + path1,
+      path: '/redirect' + (path1.startsWith('/') ? path1 : '/' + path1),
       query: query1
     });
   },

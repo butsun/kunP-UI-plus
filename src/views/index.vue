@@ -6,11 +6,20 @@
         <div class="header-left">
           <span style="font-size: 18px; font-weight: 600; color: #1a1a1a; line-height: 1.4">今日运营概况</span>
         </div>
-        <div class="date-tabs">
-          <span :class="{ active: currentView === 'today' }" @click="switchView('today')">今日</span>
-          <span :class="{ active: currentView === 'yesterday' }" @click="switchView('yesterday')">昨日</span>
+        <div class="header-right">
+          <div class="date-display">
+            <span>{{ currentView === 'today' ? dashboardData.overview.dataTime : dashboardData.yesterday.dataTime }}</span>
+          </div>
+          <div class="refresh-button" @click="refreshData">
+            <el-icon class="refresh-icon"><Refresh /></el-icon>
+          </div>
+          <div class="date-tabs">
+            <span :class="{ active: currentView === 'today' }" @click="switchView('today')">今日</span>
+            <span :class="{ active: currentView === 'yesterday' }" @click="switchView('yesterday')">昨日</span>
+          </div>
         </div>
       </div>
+      <span style="font-size: 12px; font-weight: 200; color: #1a1a1a; padding: 10px 10px 10px 10px">每日5:00点更新今日数据</span>
       <div class="stat-cards">
         <!-- 充电量卡片 -->
         <div class="stat-card">
@@ -20,13 +29,16 @@
                 <DataLine />
               </el-icon>
             </div>
-            <!-- <span class="detail-link">详情>></span> -->
           </div>
           <div class="card-content">
-            <div class="label">充电量 (度)</div>
-            <transition name="fade" mode="out-in">
-              <div class="value" :key="currentView">{{ currentView === 'today' ? dashboardData.overview.chargeAmount : dashboardData.yesterday.chargeAmount }}</div>
-            </transition>
+            <div class="main-value">
+              <div class="label section-title">充电量 (度)</div>
+              <transition name="fade" mode="out-in">
+                <div class="value" :key="currentView">
+                  {{ currentView === 'today' ? dashboardData.overview.chargeAmount : dashboardData.yesterday.chargeAmount }}
+                </div>
+              </transition>
+            </div>
           </div>
         </div>
 
@@ -44,13 +56,13 @@
               <div class="label section-title">收入 (元)</div>
               <transition name="fade" mode="out-in">
                 <div :key="currentView" class="value">
-                  {{ currentView === 'today' ? dashboardData.overview.revenueAmount : dashboardData.yesterday.revenueAmount}}
+                  {{ currentView === 'today' ? dashboardData.overview.revenueAmount : dashboardData.yesterday.revenueAmount }}
                 </div>
               </transition>
             </div>
             <div class="income-right">
               <div class="fee-item">
-                <div class="label">服务费 (元)</div>
+                <div class="label section-title">服务费 (元)</div>
                 <transition name="fade" mode="out-in">
                   <div :key="currentView" class="value">
                     {{ currentView === 'today' ? dashboardData.overview.serviceFee : dashboardData.yesterday.serviceFee }}
@@ -58,7 +70,7 @@
                 </transition>
               </div>
               <div class="fee-item">
-                <div class="label">电费 (元)</div>
+                <div class="label section-title">电费 (元)</div>
                 <transition name="fade" mode="out-in">
                   <div :key="currentView" class="value">
                     {{ currentView === 'today' ? dashboardData.overview.electricityFee : dashboardData.yesterday.electricityFee }}
@@ -80,7 +92,7 @@
           </div>
           <div class="card-content">
             <div class="main-value">
-              <div class="label">充电时长 (分钟)</div>
+              <div class="label section-title">充电时长 (分钟)</div>
               <transition name="fade" mode="out-in">
                 <div class="value" :key="currentView">
                   {{ Math.floor((currentView === 'today' ? dashboardData.overview.chargeDuration : dashboardData.yesterday.chargeDuration) / 60) }}
@@ -101,7 +113,7 @@
           </div>
           <div class="card-content">
             <div class="main-value">
-              <div class="label">服务次数</div>
+              <div class="label section-title">服务次数</div>
               <transition name="fade" mode="out-in">
                 <div class="value" :key="currentView">
                   {{ currentView === 'today' ? dashboardData.overview.serviceCount : dashboardData.yesterday.serviceCount }}
@@ -219,8 +231,8 @@
               </div>
             </div>
             <div ref="trendChartRef" class="trend-chart"></div>
-            <div class="chart-axis-label right">度</div>
-            <div class="chart-axis-label bottom">日期</div>
+            <!-- <div class="chart-axis-label right">度</div>
+            <div class="chart-axis-label bottom">日期</div> -->
           </div>
         </el-col>
       </el-row>
@@ -230,26 +242,39 @@
 
 <script setup lang="ts">
 import { ElTooltip } from 'element-plus';
-import { ref, onMounted, onUnmounted, reactive } from 'vue';
+import { ref, onMounted, onUnmounted, reactive, computed } from 'vue';
 import * as echarts from 'echarts';
-import { Promotion, Money, Timer, Service, InfoFilled } from '@element-plus/icons-vue';
+import { Promotion, Money, Timer, Service, InfoFilled, Refresh } from '@element-plus/icons-vue';
 import { getTodayData, getYesterdayData, getTrendData } from '@/api/kpSystem/dashboard';
+import tab from '@/plugins/tab';
 import type { AggregateOrderVO } from '@/api/kpSystem/types';
 
 // 图表容器引用
 const chargingChartRef = ref<HTMLElement>();
 const trendChartRef = ref<HTMLElement>();
 
-// 数据加载状态
-const todayDataLoaded = ref(false);
-const yesterdayDataLoaded = ref(false);
-const trendDataLoaded = ref(false);
+// // 数据加载状态
+// const todayDataLoaded = ref(false);
+// const yesterdayDataLoaded = ref(false);
+// const trendDataLoaded = ref(false);
 
-// 组件挂载状态
-const isMounted = ref(true);
+// // 组件挂载状态
+// const isMounted = ref(true);
 
 // 仪表盘数据
 const currentView = ref('today');
+
+// 刷新数据
+const refreshData = () => {
+  ElMessage.success('正在刷新数据...');
+  fetchTodayData();
+  if (currentView.value === 'yesterday') {
+    fetchYesterdayData();
+  }
+  fetchTrendData();
+  // 使用tab插件刷新页面
+  // tab.refreshPage();
+};
 
 const switchView = (view: 'today' | 'yesterday') => {
   currentView.value = view;
@@ -257,6 +282,7 @@ const switchView = (view: 'today' | 'yesterday') => {
 
 const dashboardData = reactive({
   overview: {
+    dataTime: '',
     chargeAmount: 0, // 充电量
     electricityFee: 0, // 电费
     serviceFee: 0, // 服务费
@@ -265,6 +291,7 @@ const dashboardData = reactive({
     chargeDuration: 0 // 充电时长（分钟）
   },
   yesterday: {
+    dataTime: '',
     chargeAmount: 0, // 充电量
     electricityFee: 0, // 电费
     serviceFee: 0, // 服务费
@@ -293,29 +320,6 @@ const dashboardData = reactive({
 
 // 初始化充电情况图表
 const initChargingChart = () => {
-  // // 检查组件是否还挂载以及DOM引用是否存在
-  // if (!isMounted.value || !chargingChartRef.value) {
-  //   console.error('图表DOM引用不存在或组件已卸载');
-  //   return;
-  // }
-  // // 检查DOM元素是否已从文档中移除
-  // if (!document.body.contains(chargingChartRef.value)) {
-  //   console.error('图表DOM元素已从文档中移除');
-  //   return;
-  // }
-  // // 初始化图表前先检查DOM是否实际存在
-  // if (!chargingChartRef.value.offsetWidth) {
-  //   console.error('图表DOM元素大小异常:', chargingChartRef.value?.offsetWidth, chargingChartRef.value?.offsetHeight);
-  //   // 尝试稍后重新初始化，但仅在组件仍然挂载时
-  //   if (isMounted.value) {
-  //     setTimeout(() => {
-  //       if (isMounted.value) {
-  //         initChargingChart();
-  //       }
-  //     }, 500);
-  //   }
-  //   return;
-  // }
   const chart = echarts.init(chargingChartRef.value);
 
   // 生成时间点
@@ -466,31 +470,31 @@ const initChargingChart = () => {
 
   chart.setOption(option);
 
-  // 图表内部的resize处理
-  const chartResizeHandler = () => {
-    if (chart && !chart.isDisposed()) {
-      chart.resize();
-    }
-  };
-  window.addEventListener('resize', chartResizeHandler);
+  // // 图表内部的resize处理
+  // const chartResizeHandler = () => {
+  //   if (chart && !chart.isDisposed()) {
+  //     chart.resize();
+  //   }
+  // };
+  // window.addEventListener('resize', chartResizeHandler);
 
-  // 将此处理程序添加到全局处理程序
-  if (typeof resizeHandler === 'function') {
-    const originalResizeHandler = resizeHandler;
-    resizeHandler = () => {
-      if (!isMounted.value) return;
-      originalResizeHandler();
-      chartResizeHandler();
-    };
-  }
+  // // 将此处理程序添加到全局处理程序
+  // if (typeof resizeHandler === 'function') {
+  //   const originalResizeHandler = resizeHandler;
+  //   resizeHandler = () => {
+  //     if (!isMounted.value) return;
+  //     originalResizeHandler();
+  //     chartResizeHandler();
+  //   };
+  // }
 
-  // 返回清理函数，在组件卸载或图表重新创建时调用
-  return () => {
-    window.removeEventListener('resize', chartResizeHandler);
-    if (chart && !chart.isDisposed()) {
-      chart.dispose();
-    }
-  };
+  // // 返回清理函数，在组件卸载或图表重新创建时调用
+  // return () => {
+  //   window.removeEventListener('resize', chartResizeHandler);
+  //   if (chart && !chart.isDisposed()) {
+  //     chart.dispose();
+  //   }
+  // };
 };
 
 // 初始化近30天趋势图表
@@ -583,7 +587,7 @@ const initTrendChart = () => {
     yAxis: [
       {
         type: 'value',
-        name: '',
+        name: '电量/电费/服务费',
         position: 'left',
         axisLabel: {
           color: '#909399',
@@ -605,7 +609,7 @@ const initTrendChart = () => {
       },
       {
         type: 'value',
-        name: '',
+        name: '服务次数',
         position: 'right',
         axisLabel: {
           color: '#909399',
@@ -677,377 +681,210 @@ const initTrendChart = () => {
 
   chart.setOption(option);
 
-  // 图表内部的resize处理
-  const chartResizeHandler = () => {
-    if (chart && !chart.isDisposed()) {
-      chart.resize();
-    }
-  };
-  window.addEventListener('resize', chartResizeHandler);
+  // // 图表内部的resize处理
+  // const chartResizeHandler = () => {
+  //   if (chart && !chart.isDisposed()) {
+  //     chart.resize();
+  //   }
+  // };
+  // window.addEventListener('resize', chartResizeHandler);
 
-  // 将此处理程序添加到全局处理程序
-  if (typeof resizeHandler === 'function') {
-    const originalResizeHandler = resizeHandler;
-    resizeHandler = () => {
-      if (!isMounted.value) return;
-      originalResizeHandler();
-      chartResizeHandler();
-    };
-  }
+  // // 将此处理程序添加到全局处理程序
+  // if (typeof resizeHandler === 'function') {
+  //   const originalResizeHandler = resizeHandler;
+  //   resizeHandler = () => {
+  //     if (!isMounted.value) return;
+  //     originalResizeHandler();
+  //     chartResizeHandler();
+  //   };
+  // }
 
-  // 返回清理函数，在组件卸载或图表重新创建时调用
-  return () => {
-    window.removeEventListener('resize', chartResizeHandler);
-    if (chart && !chart.isDisposed()) {
-      chart.dispose();
-    }
-  };
+  // // 返回清理函数，在组件卸载或图表重新创建时调用
+  // return () => {
+  //   window.removeEventListener('resize', chartResizeHandler);
+  //   if (chart && !chart.isDisposed()) {
+  //     chart.dispose();
+  //   }
+  // };
 };
 
-// 图表清理函数
-let disposeChargingChart: (() => void) | null = null;
-let disposeTrendChart: (() => void) | null = null;
+// // 图表清理函数
+// let disposeChargingChart: (() => void) | null = null;
+// let disposeTrendChart: (() => void) | null = null;
 
-// 全局resize事件处理函数
-let resizeHandler = () => {
-  // 仅在组件挂载状态下处理resize
-  if (!isMounted.value) return;
-};
+// // 全局resize事件处理函数
+// let resizeHandler = () => {
+//   // 仅在组件挂载状态下处理resize
+//   if (!isMounted.value) return;
+// };
 
-// 初始化方法
-onMounted(() => {
-  console.log('组件挂载完成，开始获取数据...');
-  isMounted.value = true;
-  loadAllData();
-  // 添加resize事件监听
-  window.addEventListener('resize', resizeHandler);
-});
+// // 初始化方法
+// onMounted(() => {
+//   console.log('组件挂载完成，开始获取数据...');
+//   isMounted.value = true;
+//   loadAllData();
+//   // 添加resize事件监听
+//   window.addEventListener('resize', resizeHandler);
+// });
 
-// 添加activated钩子，处理keep-alive情况
-onActivated(() => {
-  console.log('组件被重新激活，检查数据是否需要刷新');
-  if (isMounted.value) {
-    loadAllData();
-  }
-});
+// // 添加activated钩子，处理keep-alive情况
+// onActivated(() => {
+//   console.log('组件被重新激活，检查数据是否需要刷新');
+//   if (isMounted.value) {
+//     loadAllData();
+//   }
+// });
 
 // 监听路由变化
 import { onBeforeRouteUpdate, useRoute } from 'vue-router';
 
-const route = useRoute();
-onBeforeRouteUpdate((to, from) => {
-  console.log('检测到路由变化，重新加载数据');
-  if (to.path === '/' && isMounted.value) {
-    loadAllData();
-  }
-});
+// const route = useRoute();
+// onBeforeRouteUpdate((to, from) => {
+//   console.log('检测到路由变化，重新加载数据');
+//   if (to.path === '/' && isMounted.value) {
+//     loadAllData();
+//   }
+// });
 
-// 统一的数据加载函数
-const loadAllData = () => {
-  console.log('开始加载所有数据...');
-  // 重置状态
-  todayDataLoaded.value = false;
-  yesterdayDataLoaded.value = false;
-  trendDataLoaded.value = false;
-  // 请求数据
-  fetchTodayData();
-  fetchYesterdayData();
-  fetchTrendData();
-};
+// // 统一的数据加载函数
+// const loadAllData = () => {
+//   console.log('开始加载所有数据...');
+//   // 重置状态
+//   todayDataLoaded.value = false;
+//   yesterdayDataLoaded.value = false;
+//   trendDataLoaded.value = false;
+//   // 请求数据
+//   fetchTodayData();
+//   fetchYesterdayData();
+//   fetchTrendData();
+// };
 
 // 组件卸载时清理资源
-onUnmounted(() => {
-  console.log('组件卸载，清理资源...');
-  isMounted.value = false;
+// onUnmounted(() => {
+//   console.log('组件卸载，清理资源...');
+//   isMounted.value = false;
 
-  // 清理图表实例
-  if (disposeChargingChart) {
-    disposeChargingChart();
-    disposeChargingChart = null;
-  }
+//   // 清理图表实例
+//   if (disposeChargingChart) {
+//     disposeChargingChart();
+//     disposeChargingChart = null;
+//   }
 
-  if (disposeTrendChart) {
-    disposeTrendChart();
-    disposeTrendChart = null;
-  }
+//   if (disposeTrendChart) {
+//     disposeTrendChart();
+//     disposeTrendChart = null;
+//   }
 
-  // 移除事件监听器
-  window.removeEventListener('resize', resizeHandler);
-});
+//   // 移除事件监听器
+//   window.removeEventListener('resize', resizeHandler);
+// });
 
 // 获取今日数据
 const fetchTodayData = async () => {
-  todayDataLoaded.value = false;
-  try {
-    const res = await getTodayData();
-    if (res.code === 200) {
-      const data = res.data as AggregateOrderVO;
-      // 更新概览数据
-      dashboardData.overview = {
-        chargeAmount: data?.totalPower,
-        electricityFee: data?.totalElecMoney,
-        serviceFee: data?.totalServiceMoney,
-        serviceCount: data?.servCount,
-        revenueAmount: data?.totalMoney,
-        chargeDuration: data?.totalDuration
-      };
+  const res = await getTodayData();
+  if (res.code === 200) {
+    const data = res.data as AggregateOrderVO;
+    // 更新概览数据
+    dashboardData.overview = {
+      dataTime: data?.dataTime,
+      chargeAmount: data?.totalPower,
+      electricityFee: data?.totalElecMoney,
+      serviceFee: data?.totalServiceMoney,
+      serviceCount: data?.servCount,
+      revenueAmount: data?.totalMoney,
+      chargeDuration: data?.totalDuration
+    };
 
-      // 更新电量详情数据
-      dashboardData.powerDetails = {
-        totalTopPower: data.totalTopPower || 0,
-        totalPeakPower: data.totalPeakPower || 0,
-        totalFlatPower: data.totalFlatPower || 0,
-        totalValleyPower: data.totalValleyPower || 0
-      };
+    // 更新电量详情数据
+    dashboardData.powerDetails = {
+      totalTopPower: data.totalTopPower || 0,
+      totalPeakPower: data.totalPeakPower || 0,
+      totalFlatPower: data.totalFlatPower || 0,
+      totalValleyPower: data.totalValleyPower || 0
+    };
 
-      // 处理半小时统计数据
-      console.log('今日数据获取成功:', data);
-      console.log('totalPowerInfo:', typeof data.totalPowerInfo, data.totalPowerInfo);
-      if (data.totalPowerInfo) {
-        try {
-          // 解析 totalPowerInfo JSON 字符串
-          const powerInfoData = JSON.parse(data.totalPowerInfo);
-          console.log('解析后的今日电量数据:', powerInfoData);
-          // 如果是字符串，再次解析一次(有时服务端返回多层JSON字符串)
-          let processedData = powerInfoData;
-          if (typeof processedData === 'string') {
-            try {
-              processedData = JSON.parse(processedData);
-              console.log('再次解析后的数据:', processedData);
-            } catch (e) {
-              console.error('再次解析失败', e);
-            }
-          }
+    // 处理半小时统计数据
+    // 解析 totalPowerInfo JSON 字符串
+    const processedData = JSON.parse(data.totalPowerInfo);
 
-          // 如果数据是JSON对象但没有具体的时间点属性，尝试取其中的data属性
-          if (processedData && typeof processedData === 'object' && !processedData['00:00'] && processedData.data) {
-            processedData = processedData.data;
-            console.log('从对象中提取data属性:', processedData);
-          }
+    // 创建一个包含48个半小时的数组
+    const hourlyData = new Array(48).fill(0);
 
-          // 创建一个包含48个半小时的数组
-          const hourlyData = new Array(48).fill(0);
-
-          // 遍历时间点并填充数据
-          let index = 0;
-          for (let hour = 0; hour < 24; hour++) {
-            for (let minute = 0; minute < 60; minute += 30) {
-              const timeKey = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-              if (processedData[timeKey] !== undefined) {
-                hourlyData[index] = powerInfoData[timeKey];
-              }
-              index++;
-            }
-          }
-          console.log('处理后的今日电量数据数组:', hourlyData);
-          dashboardData.charging.today = hourlyData;
-        } catch (error) {
-          console.error('解析 totalPowerInfo 出错', error);
-          // 如果解析失败，使用随机数据
-          const totalPower = data.totalPower || 0;
-          dashboardData.charging.today = generateHalfHourDistribution(totalPower);
+    // 遍历时间点并填充数据
+    let index = 0;
+    for (let hour = 0; hour < 24; hour++) {
+      for (let minute = 0; minute < 60; minute += 30) {
+        const timeKey = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+        if (processedData[timeKey] !== undefined) {
+          hourlyData[index] = processedData[timeKey];
         }
-      } else {
-        // 如果没有相关数据，根据总量生成模拟数据
-        const totalPower = data.totalPower || 0;
-        dashboardData.charging.today = generateHalfHourDistribution(totalPower);
+        index++;
       }
-
-      // 响应式更新状态
-      todayDataLoaded.value = true;
-      console.log('今日数据加载完成，设置 todayDataLoaded =', todayDataLoaded.value);
-
-      // 在两个数据都加载完成后初始化图表
-      if (todayDataLoaded.value && yesterdayDataLoaded.value && isMounted.value) {
-        console.log('两天数据都已加载，开始初始化图表');
-        setTimeout(() => {
-          if (isMounted.value) {
-            // 再次检查组件是否仍然挂载
-            // 清理之前的图表实例
-            if (disposeChargingChart) {
-              disposeChargingChart();
-            }
-            // 初始化并保存清理函数
-            disposeChargingChart = initChargingChart();
-          }
-        }, 100); // 使用setTimeout确保DOM已更新
-      } else {
-        console.log('等待昨日数据加载完成...');
-      }
-    } else {
-      ElMessage.error(res.msg || '获取今日数据失败');
     }
-  } catch (error) {
-    console.error('获取今日数据出错', error);
-    ElMessage.error('获取今日数据出错');
+    dashboardData.charging.today = hourlyData;
+    // initChargingChart();
+    fetchYesterdayData();
+  } else {
+    ElMessage.error(res.msg || '获取今日数据失败');
   }
 };
 
 // 获取昨日数据
 const fetchYesterdayData = async () => {
-  yesterdayDataLoaded.value = false;
-  try {
-    const res = await getYesterdayData();
+  const res = await getYesterdayData();
 
-    if (res.code === 200) {
-      const data = res.data as AggregateOrderVO;
+  if (res.code === 200) {
+    const data = res.data as AggregateOrderVO;
+    // 更新昨日数据
+    dashboardData.yesterday.dataTime = data?.dataTime;
+    dashboardData.yesterday.chargeAmount = data?.totalPower;
+    dashboardData.yesterday.electricityFee = data?.totalElecMoney;
+    dashboardData.yesterday.serviceFee = data?.totalServiceMoney;
+    dashboardData.yesterday.serviceCount = data?.servCount;
+    dashboardData.yesterday.revenueAmount = data?.totalMoney;
+    dashboardData.yesterday.chargeDuration = data?.totalDuration;
 
-      // 更新昨日数据
-      dashboardData.yesterday.chargeAmount = data?.totalPower;
-      dashboardData.yesterday.electricityFee = data?.totalElecMoney;
-      dashboardData.yesterday.serviceFee = data?.totalServiceMoney;
-      dashboardData.yesterday.serviceCount = data?.servCount;
-      dashboardData.yesterday.revenueAmount = data?.totalMoney;
-      dashboardData.yesterday.chargeDuration = data?.totalDuration;
-
-      // 处理半小时统计数据
-      if (data.totalPowerInfo) {
-        try {
-          // 解析 totalPowerInfo JSON 字符串
-          const powerInfoData = JSON.parse(data.totalPowerInfo);
-          console.log('解析后的昨日电量数据:', powerInfoData);
-          // 如果是字符串，再次解析一次(有时服务端返回多层JSON字符串)
-          let processedData = powerInfoData;
-          if (typeof processedData === 'string') {
-            try {
-              processedData = JSON.parse(processedData);
-              console.log('再次解析后的昨日数据:', processedData);
-            } catch (e) {
-              console.error('再次解析失败', e);
-            }
+    // 处理半小时统计数据
+    if (data.totalPowerInfo) {
+      // 解析 totalPowerInfo JSON 字符串
+      const processedData = JSON.parse(data.totalPowerInfo);
+      // 创建一个包含48个半小时的数组
+      const hourlyData = new Array(48).fill(0);
+      // 遍历时间点并填充数据
+      let index = 0;
+      for (let hour = 0; hour < 24; hour++) {
+        for (let minute = 0; minute < 60; minute += 30) {
+          const timeKey = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+          if (processedData[timeKey] !== undefined) {
+            hourlyData[index] = processedData[timeKey];
           }
-
-          // 如果数据是JSON对象但没有具体的时间点属性，尝试取其中的data属性
-          if (processedData && typeof processedData === 'object' && !processedData['00:00'] && processedData.data) {
-            processedData = processedData.data;
-            console.log('从对象中提取昨日data属性:', processedData);
-          }
-
-          // 创建一个包含48个半小时的数组
-          const hourlyData = new Array(48).fill(0);
-
-          // 遍历时间点并填充数据
-          let index = 0;
-          for (let hour = 0; hour < 24; hour++) {
-            for (let minute = 0; minute < 60; minute += 30) {
-              const timeKey = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-              if (processedData[timeKey] !== undefined) {
-                hourlyData[index] = processedData[timeKey];
-              }
-              index++;
-            }
-          }
-          console.log('处理后的昨日电量数据数组:', hourlyData);
-          dashboardData.charging.yesterday = hourlyData;
-        } catch (error) {
-          console.error('解析 totalPowerInfo 出错', error);
-          // 如果解析失败，使用随机数据
-          const totalPower = data.totalPower || 0;
-          dashboardData.charging.yesterday = generateHalfHourDistribution(totalPower);
+          index++;
         }
-      } else if ((data as any).chargingByHalfHour) {
-        // 使用已有的半小时数据
-        dashboardData.charging.yesterday = (data as any).chargingByHalfHour;
-      } else {
-        // 如果没有相关数据，根据总量生成模拟数据
-        const totalPower = data.totalPower || 0;
-        dashboardData.charging.yesterday = generateHalfHourDistribution(totalPower);
       }
-
-      // 响应式更新状态
-      yesterdayDataLoaded.value = true;
-      console.log('昨日数据加载完成，设置 yesterdayDataLoaded =', yesterdayDataLoaded.value);
-
-      // 在两个数据都加载完成后初始化图表
-      if (todayDataLoaded.value && yesterdayDataLoaded.value) {
-        console.log('两天数据都已加载，开始初始化图表');
-        setTimeout(() => {
-          initChargingChart();
-        }, 100); // 使用setTimeout确保DOM已更新
-      } else {
-        console.log('等待今日数据加载完成...');
-      }
-    } else {
-      ElMessage.error(res.msg || '获取昨日数据失败');
+      dashboardData.charging.yesterday = hourlyData;
     }
-  } catch (error) {
-    console.error('获取昨日数据出错', error);
-    ElMessage.error('获取昨日数据出错');
+    initChargingChart();
+  } else {
+    ElMessage.error(res.msg || '获取昨日数据失败');
   }
-};
-
-// 生成半小时充电量的随机分布
-// 根据给定的总量，生成一天48个半小时的数据分布
-// 考虑常规充电规律，早晨和晚上显示峰值
-// 如果后端接口提供了具体分布，应使用真实数据代替此函数生成的数据
-const generateHalfHourDistribution = (totalPower) => {
-  // 初始化数组保存48个点（一天的半小时数）
-  const distribution = new Array(48).fill(0);
-
-  if (totalPower <= 0) return distribution;
-
-  // 定义几个峰值时段（早上7-9点，下午18-20点）
-  const peakMorningStart = 14; // 7:00
-  const peakMorningEnd = 18; // 9:00
-  const peakEveningStart = 36; // 18:00
-  const peakEveningEnd = 40; // 20:00
-
-  // 生成各时段的比例
-  for (let i = 0; i < 48; i++) {
-    // 早晨峰值
-    if (i >= peakMorningStart && i <= peakMorningEnd) {
-      distribution[i] = Math.random() * 0.5 + 1.5; // 1.5-2.0的权重
-    }
-    // 晚上峰值
-    else if (i >= peakEveningStart && i <= peakEveningEnd) {
-      distribution[i] = Math.random() * 0.7 + 1.8; // 1.8-2.5的权重
-    }
-    // 夜间低谷（00:00-06:00）
-    else if (i < 12) {
-      distribution[i] = Math.random() * 0.2; // 0-0.2的权重
-    }
-    // 其他时段
-    else {
-      distribution[i] = Math.random() * 0.5 + 0.5; // 0.5-1.0的权重
-    }
-  }
-
-  // 计算权重总和
-  const weightSum = distribution.reduce((sum, val) => sum + val, 0);
-
-  // 根据权重分配总量
-  return distribution.map((weight) => {
-    return parseFloat(((weight / weightSum) * totalPower).toFixed(3));
-  });
 };
 
 // 获取趋势数据
 const fetchTrendData = async () => {
-  trendDataLoaded.value = false;
-  try {
-    const res = await getTrendData();
-    if (res.code === 200) {
-      const data = res.data;
-      dashboardData.trend = {
-        dates: data.schemaData,
-        chargeAmount: data.totalPower,
-        electricityFee: data.totalElecMoney,
-        serviceFee: data.totalServMoney,
-        serviceCount: data.servCount
-      };
-      initTrendChart();
-    } else {
-      ElMessage.error(res.msg || '获取趋势数据失败');
-    }
-  } catch (error) {
-    console.error('获取趋势数据出错', error);
-    ElMessage.error('获取趋势数据出错');
-  }
+  const res = await getTrendData();
+  const data = res.data;
+  dashboardData.trend = {
+    dates: data.schemaData,
+    chargeAmount: data.totalPower,
+    electricityFee: data.totalElecMoney,
+    serviceFee: data.totalServMoney,
+    serviceCount: data.servCount
+  };
+  initTrendChart();
 };
 
 onMounted(() => {
   fetchTodayData();
-  fetchYesterdayData();
   fetchTrendData();
 });
 </script>
@@ -1079,7 +916,7 @@ onMounted(() => {
       justify-content: space-between;
       align-items: center;
       margin-bottom: 20px;
-      
+
       &.compact {
         margin-bottom: 16px;
       }
@@ -1103,13 +940,48 @@ onMounted(() => {
           display: inline-block !important;
           position: relative !important;
         }
+      }
 
-        .info-icon {
+      .header-right {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+
+      .date-display {
+        font-size: 18px;
+        color: #606266;
+        background-color: #f5f7fa;
+        padding: 6px 12px;
+        border-radius: 8px;
+      }
+
+      .refresh-button {
+        cursor: pointer;
+        padding: 6px;
+        border-radius: 4px;
+        background-color: #f5f7fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s;
+
+        &:hover {
+          background-color: #ecf5ff;
+          color: #409eff;
+        }
+
+        .refresh-icon {
+          font-size: 16px;
+        }
+      }
+
+      .info-icon {
           color: #8c8c8c;
           font-size: 16px;
           cursor: pointer;
-        }
       }
+      
 
       .date-tabs {
         display: flex;
@@ -1148,7 +1020,7 @@ onMounted(() => {
       .stat-card {
         background: #fff;
         border-radius: 12px;
-        padding: 20px;
+        padding: 10px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
         transition: all 0.3s ease;
 
@@ -1206,8 +1078,13 @@ onMounted(() => {
 
           .label {
             color: #8c8c8c;
-            font-size: 12px;
-            margin-bottom: 12px;
+            font-size: 14px;
+            margin-bottom: 8px;
+
+            &.section-title {
+              font-weight: 600;
+              color: #1a1a1a;
+            }
           }
 
           .value {
@@ -1216,14 +1093,19 @@ onMounted(() => {
             font-weight: 700;
             line-height: 1.1;
             margin-top: auto;
+            height: 40px;
+            display: flex;
+            align-items: center;
           }
 
           .main-value {
-            margin-bottom: 6px;
+            // margin-bottom: 6px;
             display: flex;
             flex-direction: column;
             height: 100%;
-            
+            width: 100%;
+            padding: 20px 16px;
+
             &.compact {
               margin-bottom: 4px;
             }
@@ -1232,6 +1114,11 @@ onMounted(() => {
               color: #8c8c8c;
               font-size: 14px;
               margin-bottom: 8px;
+
+              &.section-title {
+                font-weight: 600;
+                color: #1a1a1a;
+              }
             }
 
             .value {
@@ -1241,6 +1128,9 @@ onMounted(() => {
               line-height: 1.2;
               margin-top: auto;
               margin-bottom: auto;
+              height: 40px;
+              display: flex;
+              align-items: center;
             }
           }
 
@@ -1250,7 +1140,7 @@ onMounted(() => {
             flex-direction: row;
             padding: 0;
             height: auto;
-            
+
             .income-left {
               display: flex;
               flex-direction: column;
@@ -1259,26 +1149,29 @@ onMounted(() => {
               padding: 20px 16px;
               width: 100%;
               height: 100%;
-              
+
               .label {
-                color: #8c8c8c;
+                color: #1a1a1a;
                 font-size: 14px;
-                margin-bottom: 10px;
-                
+                margin-bottom: 8px;
+
                 &.section-title {
                   font-weight: 600;
                   color: #1a1a1a;
                 }
               }
-              
+
               .value {
                 color: #1a1a1a;
                 font-size: 36px;
                 font-weight: 700;
                 line-height: 1.2;
+                height: 40px;
+                display: flex;
+                align-items: center;
               }
             }
-            
+
             .income-right {
               display: flex;
               flex-direction: column;
@@ -1287,20 +1180,20 @@ onMounted(() => {
               padding: 5px 16px;
               height: 100%;
               border-left: 1px solid #f0f0f0;
-              
+
               .fee-item {
                 margin-bottom: 15px;
-                
+
                 &:last-child {
                   margin-bottom: 0;
                 }
-                
+
                 .label {
-                  color: #8c8c8c;
+                  color: #1a1a1a;
                   font-size: 14px;
-                  margin-bottom: 6px;
+                  margin-bottom: 8px;
                 }
-                
+
                 .value {
                   font-size: 24px;
                   font-weight: 600;
@@ -1309,7 +1202,7 @@ onMounted(() => {
               }
             }
           }
-          
+
           .sub-values {
             .value-item {
               display: flex;
@@ -1362,7 +1255,7 @@ onMounted(() => {
       box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.02);
       position: relative;
     }
-    
+
     .charging-chart-wrapper {
       flex-direction: column;
       padding-top: 32px;
@@ -1463,7 +1356,7 @@ onMounted(() => {
     padding: 20px;
     margin-bottom: 20px;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
-    
+
     .chart-wrapper {
       background: #f8f9fa;
       border-radius: 10px;
@@ -1478,9 +1371,10 @@ onMounted(() => {
       background: #ffffff;
       border-radius: 10px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
-      
+
       &.compact {
-        .list-header, .stat-item {
+        .list-header,
+        .stat-item {
           padding: 8px 12px;
         }
       }
@@ -1620,7 +1514,7 @@ onMounted(() => {
 /* 添加过渡动画样式 */
 .fade-enter-active,
 .fade-leave-active {
-  transition: 
+  transition:
     opacity 0.3s ease,
     transform 0.3s ease;
 }
