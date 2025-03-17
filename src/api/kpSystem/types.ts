@@ -38,6 +38,18 @@ export interface AggregateOrderVO{
    * 总服务费
    */
   totalServiceMoney: number;
+  /**
+   * 实际总费用
+   */
+  finalTotalMoney: number;
+  /**
+   * 实际总电费
+   */
+  finalElecMoney: number;
+  /**
+   * 实际总服务费
+   */
+  finalServiceMoney: number;
 
   /**
    * 总充电时长(分钟)
