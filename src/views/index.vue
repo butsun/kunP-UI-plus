@@ -262,6 +262,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, reactive, computed } from 'vue';
 import * as echarts from 'echarts';
+import type { EChartsType } from 'echarts';
 import { Refresh } from '@element-plus/icons-vue';
 import { getTodayData, getYesterdayData, getTrendData } from '@/api/kpSystem/dashboard';
 import type { AggregateOrderVO } from '@/api/kpSystem/types';
@@ -269,6 +270,8 @@ import type { AggregateOrderVO } from '@/api/kpSystem/types';
 // 图表容器引用
 const chargingChartRef = ref<HTMLDivElement>();
 const trendChartRef = ref<HTMLDivElement>();
+const chargingInstant = ref<EChartsType | null>(null); // ECharts 实例
+const trendInstant = ref<EChartsType | null>(null); // ECharts 实例
 
 // 仪表盘数据
 const currentView = ref('today');
@@ -882,7 +885,7 @@ onMounted(() => {
 
     .stat-cards {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      grid-template-columns: 0.5fr 1fr 1fr 0.5fr 0.5fr;
       gap: 12px;
 
       .stat-card {
